@@ -13,13 +13,18 @@ static_assert(KEYWORDS_SIZE == 1, "Not all keyword_type values are handled");
 static const char* KEYWORD_TYPE_CONVERT_TABLE[] = {"if"};
 
 void print_token(token t) {
+    if (!t.valid) {
+        puts("Token{Invalid}");
+        return;
+    }
+    
     printf("Token{%s}", TOKEN_TYPE_CONVERT_TABLE[t.type]);
     switch (t.type) {
         case Operator:
             printf(" `%s`", OPERATION_TYPE_CONVERT_TABLE[t.op.op_type]);
             break;
         case Value:
-            printf(" %s: `%s`", VALUE_TYPE_CONVERT_TABLE[t.val.val_type], t.val.contents);
+            printf(" %s: `%s`", VALUE_TYPE_CONVERT_TABLE[t.val.val_type], t.val.contents.data);
             break;
         case Keyword:
             printf(" `%s`", KEYWORD_TYPE_CONVERT_TABLE[t.kw.kw_type]);

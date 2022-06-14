@@ -1,3 +1,6 @@
+#include "stdbool.h"
+#include "sv/sv.h"
+
 #ifndef TOKEN_H
 #define TOKEN_H
 
@@ -29,10 +32,10 @@ enum keyword_type {
 
 typedef struct {
     enum operation_type op_type;
-} operation_token;
+} operator_token;
 
 typedef struct {
-    const char *contents;
+    string_view contents;
     enum value_type val_type;
 } value_token;
 
@@ -41,9 +44,10 @@ typedef struct {
 } keyword_token;
 
 typedef struct {
+    bool valid;
     enum token_type type;
     union {
-        operation_token op;
+        operator_token op;
         value_token val;
         keyword_token kw;
     };
