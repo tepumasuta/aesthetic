@@ -16,6 +16,14 @@ enum value_type {
     VALUE_TYPE_SIZE
 };
 
+enum integer_literal_type {
+    Hex=0,
+    Oct=1,
+    Bin=2,
+    Dec=3,
+    INTEGER_LITERAL_TYPE_SIZE
+};
+
 enum operation_type {
     Addition=0,
     Substraction=1,
@@ -35,8 +43,15 @@ typedef struct {
 } operator_token;
 
 typedef struct {
+    enum integer_literal_type int_lit_type;
+} integer_literal_token;
+
+typedef struct {
     string_view contents;
     enum value_type val_type;
+    union {
+        integer_literal_token int_lit;
+    };
 } value_token;
 
 typedef struct {

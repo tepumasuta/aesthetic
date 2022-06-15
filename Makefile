@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -std=c18
-CDFLAGS=-g -O0
+CDFLAGS=-DDEBUG -g3 -O0
 CRFLAGS=-O2 -DNDEBUG
 SRC=src
 BIN=bin
@@ -8,15 +8,28 @@ OBJ=$(BIN)/obj
 LIB=lib
 LIBS=$(LIB)/sv/sv.o
 INC=$(LIB)/
+EXEC=$(BIN)/aesthetic
 
-compiler: $(SRC)/aesthetic.c token sv
-	$(CC) $(CFLAGS) $(CDFLAGS) -I$(INC) -o $(BIN)/aesthetic $< $(OBJ)/token.o $(LIBS)
+all: debug
+
+debug: CFLAGS += $(CDFLAGS)
+debug: EXEC = $(BIN)/aesthetic-debug
+debug: compiler
+
+release: CFLAGS += $(CRFLAGS)
+release: compiler
+
+compiler: $(SRC)/aesthetic.c lexer token sv
+	$(CC) $(CFLAGS) -I$(INC) -o $(EXEC) $< $(OBJ)/token.o $(OBJ)/lexer.o $(LIBS)
+
+lexer: $(SRC)/lexer.c
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/lexer.o
 
 token: $(SRC)/token.c
-	$(CC) $(CFLAGS) $(CDFLAGS) -I$(INC) -c $< -o $(OBJ)/token.o
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/token.o
 
 sv: $(LIB)/sv/sv.c
-	$(CC) $(CFLAGS) $(CRFLAGS) -I$(INC) -c $< -o $(LIB)/sv/sv.o
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(LIB)/sv/sv.o
 
 clean:
-	rm $(OBJ)/*.o bin/aesthetic
+	rm $(OBJ)/*.o bin/aesthetic*
