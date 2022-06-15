@@ -1,3 +1,7 @@
+#include "stdint.h"
+#include "stdbool.h"
+#include "stdlib.h"
+#include "string.h"
 #include "token.h"
 #include "lexer.h"
 #include "sv/sv.h"
@@ -6,6 +10,89 @@ typedef struct LEXER_impl {
     char *start;
     string_view pos;
 } LEXER;
+
+bool is_digit(char c);
+bool is_hex(char c);
+bool is_oct(char c);
+bool is_bin(char c);
+
+void convert_to_number(LEXER *lexer, token *t) {
+    const char* lp = lexer->pos.data;
+    size_t count = lexer->pos.count;
+
+    t->type = Value;
+    t->valid = true;
+
+    bool (*digit_check) (char) = is_digit;
+    bool is_plain_integer = true;
+    enum integer_literal_type int_type;
+    
+    if (sv_starts_with(lexer->pos, SV("0x"))) {
+        int_type = Hex;
+        lp += 2;
+        count -= 2;
+        digit_check = is_hex;
+    } else if (sv_starts_with(lexer->pos, SV("0o"))) {
+        int_type = Oct;
+        lp += 2;
+        count -= 2;
+        digit_check = is_oct;
+    } else if (sv_starts_with(lexer->pos, SV("0b"))) {
+        int_type = Bin;
+        lp += 2;
+        count -= 2;
+        digit_check = is_bin;
+    } else {
+        int_type = Dec;
+    }
+
+    while (count > 0 && digit_check(*lp)) {
+        lp++;
+        count--;
+    }
+
+    if (count && int_type == Dec && *lp == '.') {
+        is_plain_integer = false;
+        
+        lp++;
+        count--;
+        
+        while (count > 0 && digit_check(*lp)) {
+            lp++;
+            count--;
+        }
+    }
+
+    size_t passed = lp - lexer->pos.data;
+
+    t->val.contents = sv_from_parts(lexer->pos.data, passed);
+
+    if (is_plain_integer) {
+        t->val.val_type = Integer;
+        t->val.int_lit.int_lit_type = int_type;
+    } else {
+        t->val.val_type = FloatingPoint;
+    }
+
+    sv_chop_left(&(lexer->pos), passed);
+}
+
+token lex_token(LEXER *lexer) {
+    token t;
+    t.valid = false;
+    if (!lexer || !lexer->pos.data[0]) {
+        return t;
+    }
+
+    lexer->pos = sv_trim_left(lexer->pos);
+
+    if (is_digit(*lexer->pos.data)) {
+        convert_to_number(lexer, &t);
+        return t;
+    }
+
+    return t;
+}
 
 LEXER* lexer_from_text(const char *text) {
     LEXER* lexer = malloc(sizeof(LEXER));
@@ -28,3 +115,21 @@ void lexer_destroy(LEXER* lexer) {
     free(lexer->start);
     free(lexer);
 }
+
+
+bool is_digit(char c) {
+    return 0x30 <= c && c <= 0x39;
+}
+
+bool is_hex(char c) {
+    return (0x30 <= c && c <= 0x39) || (0x61 <= c && c <= 0x66);
+}
+
+bool is_oct(char c) {
+    return 0x30 <= c && c <= 0x37;
+}
+
+bool is_bin(char c) {
+    return c == 0x30 || c == 0x31;
+}
+
