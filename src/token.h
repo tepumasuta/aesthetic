@@ -13,6 +13,7 @@ enum token_type {
 
 enum value_type {
     Integer=0,
+    FloatingPoint=1,
     VALUE_TYPE_SIZE
 };
 
@@ -23,7 +24,6 @@ enum integer_literal_type {
     Dec=3,
     INTEGER_LITERAL_TYPE_SIZE
 };
-
 enum operation_type {
     Addition=0,
     Substraction=1,
