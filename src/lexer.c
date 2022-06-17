@@ -8,7 +8,7 @@
 #include "sv/sv.h"
 
 typedef struct LEXER_impl {
-    char *start;
+    const char *start;
     string_view pos;
 } LEXER;
 
