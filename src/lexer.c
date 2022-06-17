@@ -82,6 +82,7 @@ void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, si
     t->valid = true;
     t->type = Operator;
     t->op.op_type = op_type;
+    t->op.length = size;
     lexer->pos.count -= size;
     lexer->pos.data += size;
 }

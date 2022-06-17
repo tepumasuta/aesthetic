@@ -1,4 +1,5 @@
 #include "stdbool.h"
+#include "stdint.h"
 #include "sv/sv.h"
 
 #ifndef TOKEN_H
@@ -42,6 +43,7 @@ enum keyword_type {
 
 typedef struct {
     enum operation_type op_type;
+    size_t length;
 } operator_token;
 
 typedef struct {
