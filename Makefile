@@ -19,14 +19,17 @@ debug: compiler
 release: CFLAGS += $(CRFLAGS)
 release: compiler
 
-compiler: $(SRC)/aesthetic.c lexer token sv
-	$(CC) $(CFLAGS) -I$(INC) -o $(EXEC) $< $(OBJ)/token.o $(OBJ)/lexer.o $(LIBS)
+compiler: $(SRC)/aesthetic.c lexer token sv darray
+	$(CC) $(CFLAGS) -I$(INC) -o $(EXEC) $< $(OBJ)/token.o $(OBJ)/lexer.o $(OBJ)/darray.o $(LIBS)
 
 lexer: $(SRC)/lexer.c
 	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/lexer.o
 
 token: $(SRC)/token.c
 	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/token.o
+
+darray: $(SRC)/darray.c
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/darray.o
 
 sv: $(LIB)/sv/sv.c
 	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(LIB)/sv/sv.o
