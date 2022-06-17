@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -std=c18
-CDFLAGS=-DDEBUG -g3 -O0
+CDFLAGS=-DDEBUG -DAE_DEBUG -g3 -O0
 CRFLAGS=-DNDEBUG -g0 -O2
 SRC=src
 BIN=bin
