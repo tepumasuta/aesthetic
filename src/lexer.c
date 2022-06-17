@@ -157,12 +157,12 @@ enum operation_type is_operator(string_view sv, size_t *length) {
 
     // Triple symbol operators
     *length = 3;
-    if (sv_starts_with(sv, SV("::="))) { return BoostyBinding; }
+    if (sv_starts_with(sv, SV("::="))) { return DefineBinding; }
 
     // Double symbol operators
     *length = 2;
     if (sv_starts_with(sv, SV("//"))) { return IntegerDivision; }
-    if (sv_starts_with(sv, SV(":="))) { return LinkingBinding; }
+    if (sv_starts_with(sv, SV(":="))) { return BoostyBinding; }
 
     // Mono symbol operators
     *length = 1;
