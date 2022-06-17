@@ -24,12 +24,14 @@ enum integer_literal_type {
     Dec=3,
     INTEGER_LITERAL_TYPE_SIZE
 };
+
 enum operation_type {
     Addition=0,
     Substraction=1,
     Multiplication=2,
     FloatDivision=3,
     IntegerDivision=4,
+    PlainCopy=5,
     OPERATION_TYPE_SIZE
 };
 

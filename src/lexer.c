@@ -15,6 +15,7 @@ bool is_digit(char c);
 bool is_hex(char c);
 bool is_oct(char c);
 bool is_bin(char c);
+enum operation_type is_operator(string_view sv, size_t *length);
 
 void convert_to_number(LEXER *lexer, token *t) {
     const char* lp = lexer->pos.data;
@@ -77,6 +78,15 @@ void convert_to_number(LEXER *lexer, token *t) {
     sv_chop_left(&(lexer->pos), passed);
 }
 
+void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, size_t size) {
+    t->valid = true;
+    t->type = Operator;
+    t->op.op_type = op_type;
+    lexer->pos.count -= size;
+    lexer->pos.data += size;
+}
+
+
 token lex_token(LEXER *lexer) {
     token t;
     t.valid = false;
@@ -88,6 +98,13 @@ token lex_token(LEXER *lexer) {
 
     if (is_digit(*lexer->pos.data)) {
         convert_to_number(lexer, &t);
+        return t;
+    }
+
+    enum operation_type op_type;
+    size_t size;
+    if ((op_type = is_operator(lexer->pos, &size)) != OPERATION_TYPE_SIZE) {
+        convert_to_operator(lexer, &t, op_type, size);
         return t;
     }
 
@@ -133,3 +150,19 @@ bool is_bin(char c) {
     return c == 0x30 || c == 0x31;
 }
 
+enum operation_type is_operator(string_view sv, size_t *length) {
+    // Double symbol operators
+    *length = 2;
+    if (sv_starts_with(sv, SV("//"))) { return IntegerDivision; }
+
+    // Mono symbol operators
+    *length = 1;
+    if (sv_starts_with(sv, SV("+"))) { return Addition; }
+    if (sv_starts_with(sv, SV("-"))) { return Substraction; }
+    if (sv_starts_with(sv, SV("*"))) { return Multiplication; }
+    if (sv_starts_with(sv, SV("/"))) { return FloatDivision; }
+    if (sv_starts_with(sv, SV("="))) { return PlainCopy; }
+
+    *length = 0;
+    return OPERATION_TYPE_SIZE;
+}
