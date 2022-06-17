@@ -2,6 +2,7 @@
 #include "stdbool.h"
 #include "stdlib.h"
 #include "string.h"
+#include "assert.h"
 #include "token.h"
 #include "lexer.h"
 #include "sv/sv.h"
@@ -152,9 +153,16 @@ bool is_bin(char c) {
 }
 
 enum operation_type is_operator(string_view sv, size_t *length) {
+    static_assert(OPERATION_TYPE_SIZE == 8, "Not all operation_type values were handled");
+
+    // Triple symbol operators
+    *length = 3;
+    if (sv_starts_with(sv, SV("::="))) { return BoostyBinding; }
+
     // Double symbol operators
     *length = 2;
     if (sv_starts_with(sv, SV("//"))) { return IntegerDivision; }
+    if (sv_starts_with(sv, SV(":="))) { return LinkingBinding; }
 
     // Mono symbol operators
     *length = 1;

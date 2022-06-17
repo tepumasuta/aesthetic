@@ -33,6 +33,8 @@ enum operation_type {
     FloatDivision=3,
     IntegerDivision=4,
     PlainCopy=5,
+    LinkingBinding=6,
+    BoostyBinding=7,
     OPERATION_TYPE_SIZE
 };
 
