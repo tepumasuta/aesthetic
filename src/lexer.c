@@ -135,19 +135,19 @@ void lexer_destroy(LEXER* lexer) {
 
 
 bool is_digit(char c) {
-    return 0x30 <= c && c <= 0x39;
+    return '0' <= c && c <= '9';
 }
 
 bool is_hex(char c) {
-    return (0x30 <= c && c <= 0x39) || (0x61 <= c && c <= 0x66);
+    return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f');
 }
 
 bool is_oct(char c) {
-    return 0x30 <= c && c <= 0x37;
+    return '0' <= c && c <= '7';
 }
 
 bool is_bin(char c) {
-    return c == 0x30 || c == 0x31;
+    return c == '0' || c == '1';
 }
 
 enum operation_type is_operator(string_view sv, size_t *length) {
