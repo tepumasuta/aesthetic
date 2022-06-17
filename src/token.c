@@ -51,5 +51,7 @@ void print_token(token t) {
     putc('\n', stdout);
 }
 #else
-void print_token(token t) {}
+void print_token(token t) {
+    (void)t;
+}
 #endif
