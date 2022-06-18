@@ -9,6 +9,7 @@ enum token_type {
     Operator=0,
     Value=1,
     Keyword=2,
+    Symbol=3,
     TOKEN_TYPE_SIZE
 };
 
@@ -65,12 +66,17 @@ typedef struct {
 } keyword_token;
 
 typedef struct {
+    string_view contents;
+} symbol_token;
+
+typedef struct {
     bool valid;
     enum token_type type;
     union {
         operator_token op;
         value_token val;
         keyword_token kw;
+        symbol_token sym;
     };
 } token;
 

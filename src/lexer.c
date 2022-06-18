@@ -16,11 +16,11 @@ static bool is_digit(char c);
 static bool is_hex(char c);
 static bool is_oct(char c);
 static bool is_bin(char c);
-// static bool is_start_symbolic(char c);
-// static bool is_symbolic(char c);
+static bool is_start_symbolic(char c);
+static bool is_symbolic(char c);
 static enum operation_type is_operator(string_view sv, size_t *length);
 static enum keyword_type is_keyword(string_view sv, size_t *length);
-
+static bool is_symbol(string_view sv, size_t *length);
 
 void convert_to_number(LEXER *lexer, token *t) {
     const char* lp = lexer->pos.data;
@@ -100,6 +100,14 @@ void convert_to_keyword(LEXER *lexer, token *t, enum keyword_type kw_type, size_
     lexer->pos.data += size;
 }
 
+void convert_to_symbol(LEXER *lexer, token *t, size_t size) {
+    t->valid = true;
+    t->type = Symbol;
+    t->sym.contents = sv_from_parts(lexer->pos.data, size);
+    lexer->pos.count -= size;
+    lexer->pos.data += size;
+}
+
 token lex_token(LEXER *lexer) {
     token t;
     t.valid = false;
@@ -125,6 +133,11 @@ token lex_token(LEXER *lexer) {
     enum keyword_type kw_type;
     if ((kw_type = is_keyword(lexer->pos, &size)) != KEYWORD_TYPE_SIZE) {
         convert_to_keyword(lexer, &t, kw_type, size);
+        return t;
+    }
+
+    if (is_symbol(lexer->pos, &size)) {
+        convert_to_symbol(lexer, &t, size);
         return t;
     }
 
@@ -212,4 +225,17 @@ static enum keyword_type is_keyword(string_view sv, size_t *length) {
 
     *length = 0;
     return KEYWORD_TYPE_SIZE;
+}
+
+static bool is_symbol(string_view sv, size_t *length) {
+    *length = 0;
+
+    if (is_start_symbolic(*sv.data)) {
+        while (sv.count-- && is_symbolic(*sv.data++)) {
+            (*length)++;
+        }
+        return true;
+    }
+
+    return false;
 }

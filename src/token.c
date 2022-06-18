@@ -5,8 +5,8 @@
 
 #ifdef AE_DEBUG
 
-static_assert(TOKEN_TYPE_SIZE == 3, "Not all token_type values are handled");
-static const char* TOKEN_TYPE_CONVERT_TABLE[] = {"Operator", "Value", "Keyword"};
+static_assert(TOKEN_TYPE_SIZE == 4, "Not all token_type values are handled");
+static const char* TOKEN_TYPE_CONVERT_TABLE[] = {"Operator", "Value", "Keyword", "Symbol"};
 static_assert(OPERATION_TYPE_SIZE == 8, "Not all operation_type values are handled");
 static const char* OPERATION_TYPE_CONVERT_TABLE[] = {"+", "-", "*", "/", "//", "=", "::=", ":="};
 static_assert(VALUE_TYPE_SIZE == 2, "Not all value_type values are handled");
@@ -43,6 +43,9 @@ void print_token(token t) {
             break;
         case Keyword:
             printf(" `%s`", KEYWORD_TYPE_CONVERT_TABLE[t.kw.kw_type]);
+            break;
+        case Symbol:
+            printf(" `"SV_Fmt"`", SV_Arg(t.sym.contents));
             break;
         case TOKEN_TYPE_SIZE:
             assert(0 && "Wrong token type in `print_token`");
