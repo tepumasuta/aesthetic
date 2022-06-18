@@ -8,7 +8,7 @@
 #include "sv/sv.h"
 
 typedef struct LEXER_impl {
-    char *start;
+    char **start;
     string_view pos;
 } LEXER;
 
@@ -108,6 +108,7 @@ void convert_to_symbol(LEXER *lexer, token *t, size_t size) {
     lexer->pos.data += size;
 }
 
+
 token lex_token(LEXER *lexer) {
     token t;
     t.valid = false;
@@ -144,25 +145,25 @@ token lex_token(LEXER *lexer) {
     return t;
 }
 
-LEXER* lexer_from_text(const char *text) {
+LEXER *lexer_from_text(const char *text, char **content_holder) {
     LEXER* lexer = malloc(sizeof(LEXER));
 
     if (!lexer) {
         return NULL;
     }
 
-    // lexer->start = strdup(text);
+    // *content_holder = strdup(text);
     size_t text_length = (strlen(text) + 1);
-    lexer->start = (char *)malloc(text_length * sizeof(char));
-    memcpy(lexer->start, text, text_length);
+    *content_holder = (char *)malloc(text_length * sizeof(char));
+    lexer->start = content_holder;
+    memcpy(*lexer->start, text, text_length);
 
-    lexer->pos = sv_from_cstr(lexer->start);
+    lexer->pos = sv_from_cstr(*lexer->start);
 
     return lexer;
 }
 
 void lexer_destroy(LEXER* lexer) {
-    free(lexer->start);
     free(lexer);
 }
 
@@ -191,7 +192,7 @@ static bool is_symbolic(char c) {
     return is_start_symbolic(c) || is_digit(c);
 }
 
-enum operation_type is_operator(string_view sv, size_t *length) {
+static enum operation_type is_operator(string_view sv, size_t *length) {
     static_assert(OPERATION_TYPE_SIZE == 8, "Not all operation_type values were handled");
 
     // Triple symbol operators
