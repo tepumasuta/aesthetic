@@ -1,5 +1,6 @@
 #include "stdbool.h"
 #include "stddef.h"
+
 #include "token.h"
 
 #ifndef DARRAY_H

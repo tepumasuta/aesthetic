@@ -4,8 +4,10 @@
 #include "string.h"
 #include "assert.h"
 #include "token.h"
-#include "lexer.h"
+
 #include "sv/sv.h"
+
+#include "lexer.h"
 
 typedef struct LEXER_impl {
     char **start;

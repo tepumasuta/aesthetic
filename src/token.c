@@ -1,7 +1,7 @@
-#include "token.h"
 #include "stdio.h"
-
 #include "assert.h"
+
+#include "token.h"
 
 #ifdef AE_DEBUG
 
