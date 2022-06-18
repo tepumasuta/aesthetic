@@ -40,7 +40,7 @@ enum operation_type {
 
 enum keyword_type {
     If=0,
-    KEYWORDS_SIZE
+    KEYWORD_TYPE_SIZE
 };
 
 typedef struct {

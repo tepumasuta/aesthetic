@@ -13,7 +13,7 @@ static_assert(VALUE_TYPE_SIZE == 2, "Not all value_type values are handled");
 static const char* VALUE_TYPE_CONVERT_TABLE[] = {"int", "float"};
 static_assert(INTEGER_LITERAL_TYPE_SIZE == 4, "Not all integer_literal_type values are handled");
 static const char* INTEGER_LITERAL_TYPE_CONVERT_TABLE[] = {"Hex", "Oct", "Bin", "Dec"};
-static_assert(KEYWORDS_SIZE == 1, "Not all keyword_type values are handled");
+static_assert(KEYWORD_TYPE_SIZE == 1, "Not all keyword_type values are handled");
 static const char* KEYWORD_TYPE_CONVERT_TABLE[] = {"if"};
 
 void print_token(token t) {

@@ -8,15 +8,19 @@
 #include "sv/sv.h"
 
 typedef struct LEXER_impl {
-    const char *start;
+    char *start;
     string_view pos;
 } LEXER;
 
-bool is_digit(char c);
-bool is_hex(char c);
-bool is_oct(char c);
-bool is_bin(char c);
-enum operation_type is_operator(string_view sv, size_t *length);
+static bool is_digit(char c);
+static bool is_hex(char c);
+static bool is_oct(char c);
+static bool is_bin(char c);
+// static bool is_start_symbolic(char c);
+// static bool is_symbolic(char c);
+static enum operation_type is_operator(string_view sv, size_t *length);
+static enum keyword_type is_keyword(string_view sv, size_t *length);
+
 
 void convert_to_number(LEXER *lexer, token *t) {
     const char* lp = lexer->pos.data;
@@ -88,6 +92,13 @@ void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, si
     lexer->pos.data += size;
 }
 
+void convert_to_keyword(LEXER *lexer, token *t, enum keyword_type kw_type, size_t size) {
+    t->valid = true;
+    t->type = Keyword;
+    t->kw.kw_type = kw_type;
+    lexer->pos.count -= size;
+    lexer->pos.data += size;
+}
 
 token lex_token(LEXER *lexer) {
     token t;
@@ -103,10 +114,17 @@ token lex_token(LEXER *lexer) {
         return t;
     }
 
-    enum operation_type op_type;
     size_t size;
+
+    enum operation_type op_type;
     if ((op_type = is_operator(lexer->pos, &size)) != OPERATION_TYPE_SIZE) {
         convert_to_operator(lexer, &t, op_type, size);
+        return t;
+    }
+
+    enum keyword_type kw_type;
+    if ((kw_type = is_keyword(lexer->pos, &size)) != KEYWORD_TYPE_SIZE) {
+        convert_to_keyword(lexer, &t, kw_type, size);
         return t;
     }
 
@@ -136,20 +154,28 @@ void lexer_destroy(LEXER* lexer) {
 }
 
 
-bool is_digit(char c) {
+static bool is_digit(char c) {
     return '0' <= c && c <= '9';
 }
 
-bool is_hex(char c) {
+static bool is_hex(char c) {
     return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f');
 }
 
-bool is_oct(char c) {
+static bool is_oct(char c) {
     return '0' <= c && c <= '7';
 }
 
-bool is_bin(char c) {
+static bool is_bin(char c) {
     return c == '0' || c == '1';
+}
+
+static bool is_start_symbolic(char c) {
+    return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_';
+}
+
+static bool is_symbolic(char c) {
+    return is_start_symbolic(c) || is_digit(c);
 }
 
 enum operation_type is_operator(string_view sv, size_t *length) {
@@ -174,4 +200,16 @@ enum operation_type is_operator(string_view sv, size_t *length) {
 
     *length = 0;
     return OPERATION_TYPE_SIZE;
+}
+
+static enum keyword_type is_keyword(string_view sv, size_t *length) {
+    static_assert(KEYWORD_TYPE_SIZE == 1, "Not all keyword_type values were handled");
+
+    if (sv_starts_with(sv, SV("if")) && (sv.count < 3 || !is_symbolic(sv.data[2]))) {
+        *length = 2;
+        return If;
+    }
+
+    *length = 0;
+    return KEYWORD_TYPE_SIZE;
 }
