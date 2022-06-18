@@ -114,6 +114,7 @@ bool darray_reserve(darray *array, size_t capacity) {
     return true;
 }
 
+#ifdef AE_DEBUG
 void print_darray(darray *array) {
     printf("Darray[%ld, %ld]:\n", array->size, array->cap);
     for (size_t i = 0; i < array->size; i++) {
@@ -121,3 +122,8 @@ void print_darray(darray *array) {
         print_token(array->arr[i]);
     }
 }
+#else
+void print_darray(darray *array) {
+    (void)array;
+}
+#endif

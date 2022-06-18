@@ -13,7 +13,8 @@ EXEC=$(BIN)/aesthetic
 all: debug
 
 debug: CFLAGS += $(CDFLAGS)
-debug: EXEC = $(BIN)/aesthetic-debug
+debug: OBJ=$(BIN)/obj-debug
+debug: EXEC=$(BIN)/aesthetic-debug
 debug: compiler
 
 release: CFLAGS += $(CRFLAGS)
@@ -35,4 +36,4 @@ sv: $(LIB)/sv/sv.c
 	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(LIB)/sv/sv.o
 
 clean:
-	rm $(OBJ)/*.o bin/aesthetic*
+	rm $(OBJ)/*.o $(OBJ)-debug/*.o bin/aesthetic*

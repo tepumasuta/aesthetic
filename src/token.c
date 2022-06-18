@@ -4,7 +4,6 @@
 #include "token.h"
 
 #ifdef AE_DEBUG
-
 static_assert(TOKEN_TYPE_SIZE == 4, "Not all token_type values are handled");
 static const char* TOKEN_TYPE_CONVERT_TABLE[] = {"Operator", "Value", "Keyword", "Symbol"};
 static_assert(OPERATION_TYPE_SIZE == 8, "Not all operation_type values are handled");
