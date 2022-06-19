@@ -14,33 +14,32 @@ EXEC=$(BIN)/aesthetic
 all: debug
 
 debug: CFLAGS += $(CDFLAGS)
-debug: OBJ=$(BIN)/obj-debug
 debug: EXEC=$(BIN)/aesthetic-debug
 debug: compiler
 
 release: CFLAGS += $(CRFLAGS)
 release: compiler
 
-compiler: $(SRC)/aesthetic.c lexer token sv darray tokenized_program segment
+compiler: $(SRC)/aesthetic.c $(OBJS) $(LIBS)
 	$(CC) $(CFLAGS) -I$(INC) -o $(EXEC) $< $(OBJS) $(LIBS)
 
-lexer: $(SRC)/lexer.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/lexer.o
+$(OBJ)/lexer.o: $(SRC)/lexer.c $(SRC)/token.c $(LIB)/sv/sv.c
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 
-token: $(SRC)/token.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/token.o
+$(OBJ)/token.o: $(SRC)/token.c $(LIB)/sv/sv.c
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 
-darray: $(SRC)/darray.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/darray.o
+$(OBJ)/darray.o: $(SRC)/darray.c $(SRC)/token.c
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 
-tokenized_program: $(SRC)/tokenized_program.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/tokenized_program.o
+$(OBJ)/tokenized_program.o: $(SRC)/tokenized_program.c $(SRC)/token.c $(SRC)/darray.c $(LIB)/sv/sv.c
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 
-segment: $(SRC)/segment.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/segment.o
+$(OBJ)/segment.o: $(SRC)/segment.c
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 
-sv: $(LIB)/sv/sv.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(LIB)/sv/sv.o
+$(LIB)/sv/sv.o: $(LIB)/sv/sv.c
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 
 clean:
-	rm $(OBJ)/*.o $(OBJ)-debug/*.o bin/aesthetic*
+	rm $(OBJ)/*.o bin/aesthetic*
