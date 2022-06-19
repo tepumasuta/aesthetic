@@ -5,7 +5,7 @@ CRFLAGS=-DNDEBUG -g0 -O2
 SRC=src
 BIN=bin
 OBJ=$(BIN)/obj
-OBJS=$(OBJ)/token.o $(OBJ)/lexer.o $(OBJ)/darray.o $(OBJ)/tokenized_program.o
+OBJS=$(OBJ)/token.o $(OBJ)/lexer.o $(OBJ)/darray.o $(OBJ)/tokenized_program.o $(OBJ)/segment.o
 LIB=lib
 LIBS=$(LIB)/sv/sv.o
 INC=$(LIB)/
@@ -21,7 +21,7 @@ debug: compiler
 release: CFLAGS += $(CRFLAGS)
 release: compiler
 
-compiler: $(SRC)/aesthetic.c lexer token sv darray tokenized_program
+compiler: $(SRC)/aesthetic.c lexer token sv darray tokenized_program segment
 	$(CC) $(CFLAGS) -I$(INC) -o $(EXEC) $< $(OBJS) $(LIBS)
 
 lexer: $(SRC)/lexer.c
@@ -35,6 +35,9 @@ darray: $(SRC)/darray.c
 
 tokenized_program: $(SRC)/tokenized_program.c
 	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/tokenized_program.o
+
+segment: $(SRC)/segment.c
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(OBJ)/segment.o
 
 sv: $(LIB)/sv/sv.c
 	$(CC) $(CFLAGS) -I$(INC) -c $< -o $(LIB)/sv/sv.o
