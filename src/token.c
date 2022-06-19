@@ -4,8 +4,8 @@
 #include "token.h"
 
 #ifdef AE_DEBUG
-static_assert(TOKEN_TYPE_SIZE == 4, "Not all token_type values are handled");
-static const char* TOKEN_TYPE_CONVERT_TABLE[] = {"Operator", "Value", "Keyword", "Symbol"};
+static_assert(TOKEN_TYPE_SIZE == 5, "Not all token_type values are handled");
+static const char* TOKEN_TYPE_CONVERT_TABLE[] = {"Operator", "Value", "Keyword", "Symbol", "EndOfFile"};
 static_assert(OPERATION_TYPE_SIZE == 8, "Not all operation_type values are handled");
 static const char* OPERATION_TYPE_CONVERT_TABLE[] = {"+", "-", "*", "/", "//", "=", "::=", ":="};
 static_assert(VALUE_TYPE_SIZE == 2, "Not all value_type values are handled");
@@ -21,7 +21,7 @@ void print_token(token t) {
         return;
     }
     
-    printf("Token{%s}", TOKEN_TYPE_CONVERT_TABLE[t.type]);
+    printf("Token[%ld:%ld]{%s}", t.pos.line, t.pos.col, TOKEN_TYPE_CONVERT_TABLE[t.type]);
     switch (t.type) {
         case Operator:
             printf(" %ld `%s`", t.op.length, OPERATION_TYPE_CONVERT_TABLE[t.op.op_type]);
@@ -45,6 +45,8 @@ void print_token(token t) {
             break;
         case Symbol:
             printf(" `"SV_Fmt"`", SV_Arg(t.sym.contents));
+            break;
+        case EndOfFile:
             break;
         case TOKEN_TYPE_SIZE:
             assert(0 && "Wrong token type in `print_token`");

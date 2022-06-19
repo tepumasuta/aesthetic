@@ -23,6 +23,26 @@ string_view sv_trim_left(string_view sv)
     return sv_from_parts(sv.data + i, sv.count - i);
 }
 
+string_view sv_trim_left_counted(string_view sv, size_t *newlines, size_t *spaces)
+{
+    *newlines = 0;
+    *spaces = 0;
+    size_t i = 0;
+    while (i < sv.count && isspace(sv.data[i])) {
+
+        if (sv.data[i] == '\n') {
+            *spaces = 1;
+            (*newlines)++;
+        } else {
+            (*spaces)++;
+        }
+
+        i += 1;
+    }
+
+    return sv_from_parts(sv.data + i, sv.count - i);
+}
+
 string_view sv_trim_right(string_view sv)
 {
     size_t i = 0;

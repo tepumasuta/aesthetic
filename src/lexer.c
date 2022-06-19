@@ -10,8 +10,9 @@
 #include "lexer.h"
 
 typedef struct LEXER_impl {
+    position current_pos;
     char **start;
-    string_view pos;
+    string_view text_pos;
 } LEXER;
 
 static bool is_digit(char c);
@@ -25,8 +26,8 @@ static enum keyword_type is_keyword(string_view sv, size_t *length);
 static bool is_symbol(string_view sv, size_t *length);
 
 void convert_to_number(LEXER *lexer, token *t) {
-    const char* lp = lexer->pos.data;
-    size_t count = lexer->pos.count;
+    const char* lp = lexer->text_pos.data;
+    size_t count = lexer->text_pos.count;
 
     t->type = Value;
     t->valid = true;
@@ -35,17 +36,17 @@ void convert_to_number(LEXER *lexer, token *t) {
     bool is_plain_integer = true;
     enum integer_literal_type int_type;
     
-    if (sv_starts_with(lexer->pos, SV("0x"))) {
+    if (sv_starts_with(lexer->text_pos, SV("0x"))) {
         int_type = Hex;
         lp += 2;
         count -= 2;
         digit_check = is_hex;
-    } else if (sv_starts_with(lexer->pos, SV("0o"))) {
+    } else if (sv_starts_with(lexer->text_pos, SV("0o"))) {
         int_type = Oct;
         lp += 2;
         count -= 2;
         digit_check = is_oct;
-    } else if (sv_starts_with(lexer->pos, SV("0b"))) {
+    } else if (sv_starts_with(lexer->text_pos, SV("0b"))) {
         int_type = Bin;
         lp += 2;
         count -= 2;
@@ -71,9 +72,9 @@ void convert_to_number(LEXER *lexer, token *t) {
         }
     }
 
-    size_t passed = lp - lexer->pos.data;
+    size_t passed = lp - lexer->text_pos.data;
 
-    t->val.contents = sv_from_parts(lexer->pos.data, passed);
+    t->val.contents = sv_from_parts(lexer->text_pos.data, passed);
 
     if (is_plain_integer) {
         t->val.val_type = Integer;
@@ -82,7 +83,8 @@ void convert_to_number(LEXER *lexer, token *t) {
         t->val.val_type = FloatingPoint;
     }
 
-    sv_chop_left(&(lexer->pos), passed);
+    sv_chop_left(&(lexer->text_pos), passed);
+    lexer->current_pos.col += passed;
 }
 
 void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, size_t size) {
@@ -90,37 +92,57 @@ void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, si
     t->type = Operator;
     t->op.op_type = op_type;
     t->op.length = size;
-    lexer->pos.count -= size;
-    lexer->pos.data += size;
+    lexer->text_pos.count -= size;
+    lexer->text_pos.data += size;
+    lexer->current_pos.col += size;
 }
 
 void convert_to_keyword(LEXER *lexer, token *t, enum keyword_type kw_type, size_t size) {
     t->valid = true;
     t->type = Keyword;
     t->kw.kw_type = kw_type;
-    lexer->pos.count -= size;
-    lexer->pos.data += size;
+    lexer->text_pos.count -= size;
+    lexer->text_pos.data += size;
+    lexer->current_pos.col += size;
 }
 
 void convert_to_symbol(LEXER *lexer, token *t, size_t size) {
     t->valid = true;
     t->type = Symbol;
-    t->sym.contents = sv_from_parts(lexer->pos.data, size);
-    lexer->pos.count -= size;
-    lexer->pos.data += size;
+    t->sym.contents = sv_from_parts(lexer->text_pos.data, size);
+    lexer->text_pos.count -= size;
+    lexer->text_pos.data += size;
+    lexer->current_pos.col += size;
 }
 
 
 token lex_token(LEXER *lexer) {
     token t;
     t.valid = false;
-    if (!lexer || !lexer->pos.data[0]) {
+
+    if (!lexer) {
+        // TODO: Throw an error
         return t;
     }
 
-    lexer->pos = sv_trim_left(lexer->pos);
+    t.pos = lexer->current_pos;
 
-    if (is_digit(*lexer->pos.data)) {
+    if (!lexer->text_pos.data[0]) {
+        t.valid = true;
+        t.type = EndOfFile;
+        return t;
+    }
+
+    size_t newlines, spaces;
+    lexer->text_pos = sv_trim_left_counted(lexer->text_pos, &newlines, &spaces);
+    lexer->current_pos.line += newlines;
+    if (newlines)
+        lexer->current_pos.col = 0;
+    lexer->current_pos.col += spaces;
+
+    t.pos = lexer->current_pos;    
+
+    if (is_digit(*lexer->text_pos.data)) {
         convert_to_number(lexer, &t);
         return t;
     }
@@ -128,18 +150,18 @@ token lex_token(LEXER *lexer) {
     size_t size;
 
     enum operation_type op_type;
-    if ((op_type = is_operator(lexer->pos, &size)) != OPERATION_TYPE_SIZE) {
+    if ((op_type = is_operator(lexer->text_pos, &size)) != OPERATION_TYPE_SIZE) {
         convert_to_operator(lexer, &t, op_type, size);
         return t;
     }
 
     enum keyword_type kw_type;
-    if ((kw_type = is_keyword(lexer->pos, &size)) != KEYWORD_TYPE_SIZE) {
+    if ((kw_type = is_keyword(lexer->text_pos, &size)) != KEYWORD_TYPE_SIZE) {
         convert_to_keyword(lexer, &t, kw_type, size);
         return t;
     }
 
-    if (is_symbol(lexer->pos, &size)) {
+    if (is_symbol(lexer->text_pos, &size)) {
         convert_to_symbol(lexer, &t, size);
         return t;
     }
@@ -157,10 +179,10 @@ LEXER *lexer_from_text(const char *text, char **content_holder) {
     // *content_holder = strdup(text);
     size_t text_length = (strlen(text) + 1);
     *content_holder = (char *)malloc(text_length * sizeof(char));
-    lexer->start = content_holder;
-    memcpy(*lexer->start, text, text_length);
-
-    lexer->pos = sv_from_cstr(*lexer->start);
+    memcpy(*content_holder, text, text_length);
+    lexer->text_pos = sv_from_cstr(*content_holder);
+    lexer->current_pos.line = 1;
+    lexer->current_pos.col = 1;
 
     return lexer;
 }

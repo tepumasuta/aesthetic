@@ -11,6 +11,7 @@ enum token_type {
     Value=1,
     Keyword=2,
     Symbol=3,
+    EndOfFile=4,
     TOKEN_TYPE_SIZE
 };
 
@@ -71,8 +72,13 @@ typedef struct {
 } symbol_token;
 
 typedef struct {
+    size_t line, col;
+} position;
+
+typedef struct {
     bool valid;
     enum token_type type;
+    position pos;
     union {
         operator_token op;
         value_token val;

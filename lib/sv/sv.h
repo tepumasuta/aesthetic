@@ -52,6 +52,7 @@ typedef struct {
 string_view sv_from_parts(const char *data, size_t count);
 string_view sv_from_cstr(const char *cstr);
 string_view sv_trim_left(string_view sv);
+string_view sv_trim_left_counted(string_view sv, size_t *newlines, size_t *spaces);
 string_view sv_trim_right(string_view sv);
 string_view sv_trim(string_view sv);
 string_view sv_take_left_while(string_view sv, bool (*predicate)(char x));
