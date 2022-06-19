@@ -1,10 +1,10 @@
+#ifndef DARRAY_H
+#define DARRAY_H
+
 #include "stdbool.h"
 #include "stddef.h"
 
 #include "token.h"
-
-#ifndef DARRAY_H
-#define DARRAY_H
 
 typedef struct {
     token *arr;
