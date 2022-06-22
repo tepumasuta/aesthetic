@@ -134,7 +134,7 @@ bool darray_##DATA_TYPE##_reserve(darray_##DATA_TYPE *array, size_t capacity) {\
 #ifdef AE_DEBUG
 #define DARRAY_DEFINE_PRINT(DATA_TYPE) \
 void print_darray_##DATA_TYPE(darray_##DATA_TYPE *array) {\
-    printf("Darray_""DATA_TYPE""[%ld, %ld]:\n", array->size, array->cap);\
+    printf("Darray_"#DATA_TYPE"[%ld, %ld]:\n", array->size, array->cap);\
     for (size_t i = 0; i < array->size; i++) {\
         fputs("- ", stdout);\
         print_##DATA_TYPE(array->arr[i]);\
