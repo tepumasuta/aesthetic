@@ -4,12 +4,14 @@
 #include "token.h"
 #include "darray.h"
 
+DARRAY_DEFINE_PROTOTYPE(token)
+
 typedef struct {
     char *tokens_text_memory;
-    darray *tokens;
+    darray_token *tokens;
 } tokenized_program;
 
-tokenized_program *tokenized_program_from_tokens(char *text, darray *tokens);
+tokenized_program *tokenized_program_from_tokens(char *text, darray_token *tokens);
 void tokenized_program_destroy(tokenized_program *tk_prog);
 void print_tokenized_program(tokenized_program *tk_prog);
 

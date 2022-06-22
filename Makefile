@@ -29,10 +29,7 @@ $(OBJ)/lexer.o: $(SRC)/lexer.c $(SRC)/token.c $(LIB)/sv/sv.c
 $(OBJ)/token.o: $(SRC)/token.c $(LIB)/sv/sv.c
 	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 
-$(OBJ)/darray.o: $(SRC)/darray.c $(SRC)/token.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
-
-$(OBJ)/tokenized_program.o: $(SRC)/tokenized_program.c $(SRC)/token.c $(SRC)/darray.c $(LIB)/sv/sv.c
+$(OBJ)/tokenized_program.o: $(SRC)/tokenized_program.c $(SRC)/token.c $(SRC)/darray.h $(LIB)/sv/sv.c
 	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 
 $(OBJ)/segment.o: $(SRC)/segment.c
