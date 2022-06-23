@@ -5,10 +5,10 @@ CRFLAGS=-DNDEBUG -g0 -O2
 SRC=src
 BIN=bin
 OBJ=$(BIN)/obj
-OBJS=$(OBJ)/token.o $(OBJ)/lexer.o $(OBJ)/darray.o $(OBJ)/tokenized_program.o $(OBJ)/segment.o
+OBJS=$(OBJ)/token.o $(OBJ)/lexer.o $(OBJ)/darray_token.o $(OBJ)/tokenized_program.o $(OBJ)/segment.o
 LIB=lib
 LIBS=$(LIB)/sv/sv.o
-INC=$(LIB)/
+INC=-I$(LIB)/ -I$(SRC)/
 EXEC=$(BIN)/aesthetic
 
 all: debug
@@ -21,22 +21,25 @@ release: CFLAGS += $(CRFLAGS)
 release: compiler
 
 compiler: $(SRC)/aesthetic.c $(OBJS) $(LIBS)
-	$(CC) $(CFLAGS) -I$(INC) -o $(EXEC) $< $(OBJS) $(LIBS)
+	$(CC) $(CFLAGS) $(INC) -o $(EXEC) $< $(OBJS) $(LIBS)
 
-$(OBJ)/lexer.o: $(SRC)/lexer.c $(SRC)/token.c $(LIB)/sv/sv.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
+$(OBJ)/lexer.o: $(SRC)/lexer/lexer.c $(SRC)/lexer/token.c $(LIB)/sv/sv.c
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-$(OBJ)/token.o: $(SRC)/token.c $(LIB)/sv/sv.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
+$(OBJ)/token.o: $(SRC)/lexer/token.c $(LIB)/sv/sv.c
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-$(OBJ)/tokenized_program.o: $(SRC)/tokenized_program.c $(SRC)/token.c $(SRC)/darray.h $(LIB)/sv/sv.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
+$(OBJ)/tokenized_program.o: $(SRC)/lexer/tokenized_program.c $(SRC)/lexer/token.c $(SRC)/temp_lib_inst/darray/darray_token.c $(LIB)/sv/sv.c
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-$(OBJ)/segment.o: $(SRC)/segment.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
+$(OBJ)/segment.o: $(SRC)/data_structures/segment.c
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
+$(OBJ)/darray_token.o: $(SRC)/temp_lib_inst/darray/darray_token.c
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 $(LIB)/sv/sv.o: $(LIB)/sv/sv.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 clean:
 	rm $(OBJ)/*.o bin/aesthetic*

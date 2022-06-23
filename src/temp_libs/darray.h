@@ -7,12 +7,7 @@
 #include "stddef.h"
 
 #define DARRAY_DEFINE_PROTOTYPE(DATA_TYPE) \
-typedef struct {\
-    DATA_TYPE *arr;\
-    size_t size;\
-    size_t cap;\
-    bool shrink;\
-} darray_##DATA_TYPE;\
+typedef struct darray_##DATA_TYPE##_impl darray_##DATA_TYPE;\
 \
 darray_##DATA_TYPE* darray_##DATA_TYPE##_create(size_t capacity, bool shrink);\
 void darray_##DATA_TYPE##_destory(darray_##DATA_TYPE *array);\
@@ -24,6 +19,12 @@ bool darray_##DATA_TYPE##_reserve(darray_##DATA_TYPE *array, size_t capacity);\
 void print_darray_##DATA_TYPE(darray_##DATA_TYPE *array);
 
 #define DARRAY_DEFINE(DATA_TYPE) \
+typedef struct darray_##DATA_TYPE##_impl {\
+    DATA_TYPE *arr;\
+    size_t size;\
+    size_t cap;\
+    bool shrink;\
+} darray_##DATA_TYPE;\
 darray_##DATA_TYPE* darray_##DATA_TYPE##_create(size_t capacity, bool shrink) {\
     darray_##DATA_TYPE *array = malloc(sizeof(darray_##DATA_TYPE));\
 \

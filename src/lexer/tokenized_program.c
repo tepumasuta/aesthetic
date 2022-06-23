@@ -6,11 +6,10 @@
 #include "sv/sv.h"
 
 #include "token.h"
-#include "darray.h"
 #include "tokenized_program.h"
 
-DARRAY_DEFINE(token)
-DARRAY_DEFINE_PRINT(token)
+#include "temp_lib_inst/darray/darray_token.h"
+
 
 // Takes control of memory of darray pointer and text pointer
 tokenized_program *tokenized_program_from_tokens(char *text, darray_token *tokens) {

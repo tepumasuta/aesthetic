@@ -1,10 +1,7 @@
 #ifndef TOKENIZED_PROGRAM_H
 #define TOKENIZED_PROGRAM_H
 
-#include "token.h"
-#include "darray.h"
-
-DARRAY_DEFINE_PROTOTYPE(token)
+#include "temp_lib_inst/darray/darray_token.h"
 
 typedef struct {
     char *tokens_text_memory;
