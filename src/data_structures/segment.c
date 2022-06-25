@@ -15,10 +15,10 @@ bool segment_intersect(segment seg1, segment seg2) {
            (seg2.start <= seg1.end && seg2.end >= seg1.end);
 }
 
-size_t segment_unite(segment *segs, size_t length, segment seg) {
+size_t segment_unite(segment *segs, size_t length, segment seg) {    
     size_t intersection_start, intersection_end = length - 1;
     bool intersected = false;
-    size_t insert_pos;
+    size_t insert_pos = (length ? length : 0);
     bool insert_pos_found = false;
 
     for (size_t i = 0; i < length; i++) {
@@ -30,8 +30,8 @@ size_t segment_unite(segment *segs, size_t length, segment seg) {
             break;
         }
 
-        if (!insert_pos_found && segs[i].end < seg.start) {
-            insert_pos = i + 1;
+        if (!insert_pos_found && seg.end < segs[i].start) {
+            insert_pos = i;
             insert_pos_found = true;
         }
     }
@@ -62,4 +62,8 @@ void print_segments(segment *segs, size_t length) {
     for (size_t i = 0; i < length - 1; i++)
         printf("(%ld, %ld) || ", segs[i].start, segs[i].end);
     printf("(%ld, %ld)\n", segs[length - 1].start, segs[length - 1].end);
+}
+
+void print_segment(segment seg) {
+    printf("(%ld, %ld)\n", seg.start, seg.end);
 }
