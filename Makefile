@@ -5,7 +5,7 @@ CRFLAGS=-DNDEBUG -g0 -O2
 SRC=src
 BIN=bin
 OBJ=$(BIN)/obj
-OBJS=$(OBJ)/token.o $(OBJ)/lexer.o $(OBJ)/darray_token.o $(OBJ)/tokenized_program.o $(OBJ)/segment.o
+OBJS=$(OBJ)/token.o $(OBJ)/lexer.o $(OBJ)/darray_token.o $(OBJ)/darray_segment.o $(OBJ)/tokenized_program.o $(OBJ)/segment.o
 LIB=lib
 LIBS=$(LIB)/sv/sv.o
 INC=-I$(LIB)/ -I$(SRC)/
@@ -29,13 +29,16 @@ $(OBJ)/lexer.o: $(SRC)/lexer/lexer.c $(SRC)/lexer/token.c $(LIB)/sv/sv.c
 $(OBJ)/token.o: $(SRC)/lexer/token.c $(LIB)/sv/sv.c
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-$(OBJ)/tokenized_program.o: $(SRC)/lexer/tokenized_program.c $(SRC)/lexer/token.c $(SRC)/temp_lib_inst/darray/darray_token.c $(LIB)/sv/sv.c
+$(OBJ)/tokenized_program.o: $(SRC)/lexer/tokenized_program.c $(SRC)/lexer/token.c $(SRC)/temp_lib_inst/darray/darray_token.c $(SRC)/lexer/token.c $(SRC)/temp_lib_inst/darray/darray_segment.c $(LIB)/sv/sv.c
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 $(OBJ)/segment.o: $(SRC)/data_structures/segment.c
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 $(OBJ)/darray_token.o: $(SRC)/temp_lib_inst/darray/darray_token.c
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
+$(OBJ)/darray_segment.o: $(SRC)/temp_lib_inst/darray/darray_segment.c
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 $(LIB)/sv/sv.o: $(LIB)/sv/sv.c
