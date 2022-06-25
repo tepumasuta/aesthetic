@@ -23,9 +23,10 @@ static bool is_start_symbolic(char c);
 static bool is_symbolic(char c);
 static enum operation_type is_operator(string_view sv, size_t *length);
 static enum keyword_type is_keyword(string_view sv, size_t *length);
+static enum punctuation_type is_punctuation(string_view sv, size_t *length);
 static bool is_symbol(string_view sv, size_t *length);
 
-void convert_to_number(LEXER *lexer, token *t) {
+static void convert_to_number(LEXER *lexer, token *t) {
     const char* lp = lexer->text_pos.data;
     size_t count = lexer->text_pos.count;
 
@@ -87,7 +88,7 @@ void convert_to_number(LEXER *lexer, token *t) {
     lexer->current_pos.col += passed;
 }
 
-void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, size_t size) {
+static void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, size_t size) {
     t->valid = true;
     t->type = Operator;
     t->op.op_type = op_type;
@@ -97,7 +98,7 @@ void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, si
     lexer->current_pos.col += size;
 }
 
-void convert_to_keyword(LEXER *lexer, token *t, enum keyword_type kw_type, size_t size) {
+static void convert_to_keyword(LEXER *lexer, token *t, enum keyword_type kw_type, size_t size) {
     t->valid = true;
     t->type = Keyword;
     t->kw.kw_type = kw_type;
@@ -106,7 +107,7 @@ void convert_to_keyword(LEXER *lexer, token *t, enum keyword_type kw_type, size_
     lexer->current_pos.col += size;
 }
 
-void convert_to_symbol(LEXER *lexer, token *t, size_t size) {
+static void convert_to_symbol(LEXER *lexer, token *t, size_t size) {
     t->valid = true;
     t->type = Symbol;
     t->sym.contents = sv_from_parts(lexer->text_pos.data, size);
@@ -115,6 +116,14 @@ void convert_to_symbol(LEXER *lexer, token *t, size_t size) {
     lexer->current_pos.col += size;
 }
 
+static void convert_to_punctuation(LEXER *lexer, token *t, enum punctuation_type pt_type, size_t size) {
+    t->valid = true;
+    t->type = Punctuation;
+    t->pt.pt_type = pt_type;
+    lexer->text_pos.count -= size;
+    lexer->text_pos.data += size;
+    lexer->current_pos.col += size;
+}
 
 token lex_token(LEXER *lexer) {
     token t;
@@ -158,6 +167,12 @@ token lex_token(LEXER *lexer) {
     enum keyword_type kw_type;
     if ((kw_type = is_keyword(lexer->text_pos, &size)) != KEYWORD_TYPE_SIZE) {
         convert_to_keyword(lexer, &t, kw_type, size);
+        return t;
+    }
+
+    enum punctuation_type pt_type;
+    if ((pt_type = is_punctuation(lexer->text_pos, &size)) != PUNCTUATION_TYPE_SIZE) {
+        convert_to_punctuation(lexer, &t, pt_type, size);
         return t;
     }
 
@@ -263,4 +278,20 @@ static bool is_symbol(string_view sv, size_t *length) {
     }
 
     return false;
+}
+
+static enum punctuation_type is_punctuation(string_view sv, size_t *length) {
+    static_assert(PUNCTUATION_TYPE_SIZE == 7, "Not all punctuation_type values were handled");
+
+    *length = 1;
+    if (sv_starts_with(sv, SV(";"))) { return Semicolon; }
+    if (sv_starts_with(sv, SV("{"))) { return ScopeOpen; }
+    if (sv_starts_with(sv, SV("}"))) { return ScopeClose; }
+    if (sv_starts_with(sv, SV("("))) { return ParenthesesOpen; }
+    if (sv_starts_with(sv, SV(")"))) { return ParenthesesClose; }
+    if (sv_starts_with(sv, SV("["))) { return BracketOpen; }
+    if (sv_starts_with(sv, SV("]"))) { return BracketClose; }
+
+    *length = 0;
+    return PUNCTUATION_TYPE_SIZE;
 }

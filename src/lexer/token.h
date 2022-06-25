@@ -12,6 +12,7 @@ enum token_type {
     Keyword=2,
     Symbol=3,
     EndOfFile=4,
+    Punctuation=5,
     TOKEN_TYPE_SIZE
 };
 
@@ -46,6 +47,17 @@ enum keyword_type {
     KEYWORD_TYPE_SIZE
 };
 
+enum punctuation_type {
+    Semicolon=0,
+    ScopeOpen=1,
+    ScopeClose=2,
+    ParenthesesOpen=3,
+    ParenthesesClose=4,
+    BracketOpen=5,
+    BracketClose=6,
+    PUNCTUATION_TYPE_SIZE
+};
+
 typedef struct {
     enum operation_type op_type;
     size_t length;
@@ -72,6 +84,10 @@ typedef struct {
 } symbol_token;
 
 typedef struct {
+    enum punctuation_type pt_type;
+} punctuation_token;
+
+typedef struct {
     size_t line, col;
 } position;
 
@@ -84,6 +100,7 @@ typedef struct {
         value_token val;
         keyword_token kw;
         symbol_token sym;
+        punctuation_token pt;
     };
 } token;
 
