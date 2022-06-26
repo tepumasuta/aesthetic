@@ -26,7 +26,7 @@ void print_token(token t) {
     printf("Token[%ld:%ld]{%s}", t.pos.line, t.pos.col, TOKEN_TYPE_CONVERT_TABLE[t.type]);
     switch (t.type) {
         case Operator:
-            printf(" %ld `%s`", t.op.length, OPERATION_TYPE_CONVERT_TABLE[t.op.op_type]);
+            printf(" `%s`", OPERATION_TYPE_CONVERT_TABLE[t.op.op_type]);
             break;
         case Value:
             printf(" %s: `"SV_Fmt"`", VALUE_TYPE_CONVERT_TABLE[t.val.val_type], SV_Arg(t.val.contents));
