@@ -3,7 +3,7 @@
 
 #include "temp_lib_inst/darray/darray_token.h"
 
-typedef struct {
+typedef struct tokenized_program {
     char *tokens_text_memory;
     darray_token *tokens;
 } tokenized_program;

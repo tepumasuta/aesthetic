@@ -11,7 +11,7 @@
 
 typedef struct LEXER_impl {
     position current_pos;
-    char **start;
+    char *start;
     string_view text_pos;
 } LEXER;
 
@@ -184,7 +184,7 @@ token lex_token(LEXER *lexer) {
     return t;
 }
 
-LEXER *lexer_from_text(const char *text, char **content_holder) {
+LEXER *lexer_from_text(char *text) {
     LEXER* lexer = malloc(sizeof(LEXER));
 
     if (!lexer) {
@@ -193,9 +193,9 @@ LEXER *lexer_from_text(const char *text, char **content_holder) {
 
     // *content_holder = strdup(text);
     size_t text_length = (strlen(text) + 1);
-    *content_holder = (char *)malloc(text_length * sizeof(char));
-    memcpy(*content_holder, text, text_length);
-    lexer->text_pos = sv_from_cstr(*content_holder);
+    lexer->start = malloc(text_length * sizeof(char));
+    memcpy(lexer->start, text, text_length);
+    lexer->text_pos = sv_from_cstr(lexer->start);
     lexer->current_pos.line = 1;
     lexer->current_pos.col = 1;
 
@@ -203,6 +203,7 @@ LEXER *lexer_from_text(const char *text, char **content_holder) {
 }
 
 void lexer_destroy(LEXER* lexer) {
+    free(lexer->start);
     free(lexer);
 }
 

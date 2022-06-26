@@ -13,15 +13,12 @@
 #include "data_structures/segment.h"
 
 
-// Takes control of memory of darray pointer and text pointer
-tokenized_program *tokenized_program_from_tokens(char *text, darray_token *tokens) {
-    tokenized_program *tk_prog = malloc(sizeof(tokenized_program));
-    tk_prog->tokens = tokens;
+static void tokenized_program_remap_tokens(tokenized_program *tk_prog) {
+    darray_segment *segs_tmp = darray_segment_create(tk_prog->tokens->size, false);
+    char *const text = tk_prog->tokens_text_memory;
 
-    darray_segment *segs_tmp = darray_segment_create(tokens->size, false);
-
-    for (size_t i = 0; i < tokens->size; i++) {
-        token t = tokens->arr[i];
+    for (size_t i = 0; i < tk_prog->tokens->size; i++) {
+        token t = tk_prog->tokens->arr[i];
         bool with_contents = true;
         string_view sv;
         switch (t.type) {
@@ -80,8 +77,16 @@ tokenized_program *tokenized_program_from_tokens(char *text, darray_token *token
     }
 
     darray_segment_destory(segs_tmp);
-    free(text);
     tk_prog->tokens_text_memory = new_text_memory;
+}
+
+// Takes control of memory of darray pointer and text pointer
+tokenized_program *tokenized_program_from_tokens(char *text, darray_token *tokens) {
+    tokenized_program *tk_prog = malloc(sizeof(tokenized_program));
+    tk_prog->tokens = tokens;
+    tk_prog->tokens_text_memory = text;
+
+    tokenized_program_remap_tokens(tk_prog);
 
     return tk_prog;
 }
