@@ -58,16 +58,16 @@ enum punctuation_type {
     PUNCTUATION_TYPE_SIZE
 };
 
-typedef struct {
+typedef struct operator_token {
     enum operation_type op_type;
     size_t length;
 } operator_token;
 
-typedef struct {
+typedef struct integer_literal_token {
     enum integer_literal_type int_lit_type;
 } integer_literal_token;
 
-typedef struct {
+typedef struct value_token {
     string_view contents;
     enum value_type val_type;
     union {
@@ -75,23 +75,23 @@ typedef struct {
     };
 } value_token;
 
-typedef struct {
+typedef struct keyword_token {
     enum keyword_type kw_type;
 } keyword_token;
 
-typedef struct {
+typedef struct symbol_token {
     string_view contents;
 } symbol_token;
 
-typedef struct {
+typedef struct punctuation_token {
     enum punctuation_type pt_type;
 } punctuation_token;
 
-typedef struct {
+typedef struct position {
     size_t line, col;
 } position;
 
-typedef struct {
+typedef struct token {
     bool valid;
     enum token_type type;
     position pos;
