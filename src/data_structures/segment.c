@@ -15,7 +15,8 @@ bool segment_intersect(segment seg1, segment seg2) {
            (seg2.start <= seg1.end && seg2.end >= seg1.end);
 }
 
-size_t segment_unite(segment *segs, size_t length, segment seg) {    
+// O(N)
+size_t segment_unite(segment *segs, size_t length, segment seg) {
     size_t intersection_start, intersection_end = length - 1;
     bool intersected = false;
     size_t insert_pos = (length ? length : 0);

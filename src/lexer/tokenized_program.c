@@ -12,7 +12,7 @@
 #include "temp_lib_inst/darray/darray_segment.h"
 #include "data_structures/segment.h"
 
-
+// O(N^2)
 static void tokenized_program_remap_tokens(tokenized_program *tk_prog) {
     darray_segment *segs_tmp = darray_segment_create(tk_prog->tokens->size, false);
     char *const text = tk_prog->tokens_text_memory;
@@ -80,7 +80,7 @@ static void tokenized_program_remap_tokens(tokenized_program *tk_prog) {
     tk_prog->tokens_text_memory = new_text_memory;
 }
 
-// Takes control of memory of darray pointer and text pointer
+// Takes control of memory of darray pointer
 tokenized_program *tokenized_program_from_tokens(char *text, darray_token *tokens) {
     tokenized_program *tk_prog = malloc(sizeof(tokenized_program));
     tk_prog->tokens = tokens;
