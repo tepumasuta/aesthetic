@@ -41,6 +41,8 @@ enum operation_type {
     BoostyBinding=7,
     CommentLine=8,
     Pipe=9,
+    Delete=10,
+    RecursiveDelete=11,
     OPERATION_TYPE_SIZE
 };
 

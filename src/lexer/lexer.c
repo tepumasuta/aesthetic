@@ -238,7 +238,7 @@ static bool is_symbolic(char c) {
 }
 
 static enum operation_type is_operator(string_view sv, size_t *length) {
-    static_assert(OPERATION_TYPE_SIZE == 10, "Not all operation_type values were handled");
+    static_assert(OPERATION_TYPE_SIZE == 12, "Not all operation_type values were handled");
 
     // Triple symbol operators
     *length = 3;
@@ -247,6 +247,8 @@ static enum operation_type is_operator(string_view sv, size_t *length) {
 
     // Double symbol operators
     *length = 2;
+    if (sv_starts_with(sv, SV("~!"))) { return RecursiveDelete; }
+    if (sv_starts_with(sv, SV("!!"))) { return Delete; }
     if (sv_starts_with(sv, SV("~>"))) { return Pipe; }
     if (sv_starts_with(sv, SV("//"))) { return IntegerDivision; }
     if (sv_starts_with(sv, SV(":="))) { return BoostyBinding; }
