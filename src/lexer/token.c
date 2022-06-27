@@ -14,8 +14,10 @@ static_assert(INTEGER_LITERAL_TYPE_SIZE == 4, "Not all integer_literal_type valu
 static const char *INTEGER_LITERAL_TYPE_CONVERT_TABLE[] = {"Hex", "Oct", "Bin", "Dec"};
 static_assert(KEYWORD_TYPE_SIZE == 5, "Not all keyword_type values are handled");
 static const char *KEYWORD_TYPE_CONVERT_TABLE[] = {"if", "when", "whenever", "exist", "on"};
-static_assert(PUNCTUATION_TYPE_SIZE == 10, "Not all punctuation_type values are handled");
-static const char *PUNCTUATION_TYPE_CONVERT_TABLE[] = {";", "{", "}", "(", ")", "[", "]", ",", ".", "\\n"};
+static_assert(PUNCTUATION_TYPE_SIZE == 11, "Not all punctuation_type values are handled");
+static const char *PUNCTUATION_TYPE_CONVERT_TABLE[] = {
+    ";", "{", "}", "(", ")", "[", "]", ",", ".", "\\n", ":"
+};
 
 void print_token(token t) {
     if (!t.valid) {

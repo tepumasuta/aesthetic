@@ -63,6 +63,7 @@ enum punctuation_type {
     Comma=7,
     Dot=8,
     LineEnd=9,
+    Colon=10,
     PUNCTUATION_TYPE_SIZE
 };
 

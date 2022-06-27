@@ -300,12 +300,13 @@ static bool is_symbol(string_view sv, size_t *length) {
 }
 
 static enum punctuation_type is_punctuation(string_view sv, size_t *length) {
-    static_assert(PUNCTUATION_TYPE_SIZE == 10, "Not all punctuation_type values were handled");
+    static_assert(PUNCTUATION_TYPE_SIZE == 11, "Not all punctuation_type values were handled");
 
     *length = 2;
     if (sv_starts_with(sv, SV("\r\n"))) { return LineEnd; }
 
     *length = 1;
+    if (sv_starts_with(sv, SV(":"))) { return Colon; }
     if (sv_starts_with(sv, SV("\n"))) { return LineEnd; }
     if (sv_starts_with(sv, SV(";"))) { return Semicolon; }
     if (sv_starts_with(sv, SV("{"))) { return ScopeOpen; }
