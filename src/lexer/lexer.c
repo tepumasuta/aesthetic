@@ -143,11 +143,9 @@ token lex_token(LEXER *lexer) {
         return t;
     }
 
-    size_t newlines, spaces;
-    lexer->text_pos = sv_trim_left_counted(lexer->text_pos, &newlines, &spaces);
-    lexer->current_pos.line += newlines;
-    if (newlines)
-        lexer->current_pos.col = 0;
+    const char *before = lexer->text_pos.data;
+    lexer->text_pos = sv_trim_left(lexer->text_pos);
+    size_t spaces = lexer->text_pos.data - before;
     lexer->current_pos.col += spaces;
 
     t.pos = lexer->current_pos;    
@@ -174,6 +172,12 @@ token lex_token(LEXER *lexer) {
     enum punctuation_type pt_type;
     if ((pt_type = is_punctuation(lexer->text_pos, &size)) != PUNCTUATION_TYPE_SIZE) {
         convert_to_punctuation(lexer, &t, pt_type, size);
+       
+        if (pt_type == LineEnd) {
+            lexer->current_pos.line++;
+            lexer->current_pos.col = 0;
+        }
+            
         return t;
     }
 
@@ -234,11 +238,12 @@ static bool is_symbolic(char c) {
 }
 
 static enum operation_type is_operator(string_view sv, size_t *length) {
-    static_assert(OPERATION_TYPE_SIZE == 8, "Not all operation_type values were handled");
+    static_assert(OPERATION_TYPE_SIZE == 9, "Not all operation_type values were handled");
 
     // Triple symbol operators
     *length = 3;
     if (sv_starts_with(sv, SV("::="))) { return DefineBinding; }
+    if (sv_starts_with(sv, SV("///"))) { return CommentLine; }
 
     // Double symbol operators
     *length = 2;
@@ -257,13 +262,25 @@ static enum operation_type is_operator(string_view sv, size_t *length) {
     return OPERATION_TYPE_SIZE;
 }
 
-static enum keyword_type is_keyword(string_view sv, size_t *length) {
-    static_assert(KEYWORD_TYPE_SIZE == 1, "Not all keyword_type values were handled");
-
-    if (sv_starts_with(sv, SV("if")) && (sv.count < 3 || !is_symbolic(sv.data[2]))) {
-        *length = 2;
-        return If;
+static bool compare_full_keyword(string_view sv, char *word, size_t *length) {
+    size_t count = strlen(word);
+    
+    if (sv_starts_with(sv, sv_from_cstr(word))
+    && (sv.count < count + 1 || !is_symbolic(sv.data[count]))) {
+        *length = count;
+        return true;
     }
+    return false;
+}
+
+static enum keyword_type is_keyword(string_view sv, size_t *length) {
+    static_assert(KEYWORD_TYPE_SIZE == 5, "Not all keyword_type values were handled");
+
+    if (compare_full_keyword(sv, "whenever", length)) { return Whenever; }
+    if (compare_full_keyword(sv, "exist", length)) { return Exist; }
+    if (compare_full_keyword(sv, "when", length)) { return When; }
+    if (compare_full_keyword(sv, "on", length)) { return On; }
+    if (compare_full_keyword(sv, "if", length)) { return If; }
 
     *length = 0;
     return KEYWORD_TYPE_SIZE;
@@ -283,9 +300,13 @@ static bool is_symbol(string_view sv, size_t *length) {
 }
 
 static enum punctuation_type is_punctuation(string_view sv, size_t *length) {
-    static_assert(PUNCTUATION_TYPE_SIZE == 7, "Not all punctuation_type values were handled");
+    static_assert(PUNCTUATION_TYPE_SIZE == 10, "Not all punctuation_type values were handled");
+
+    *length = 2;
+    if (sv_starts_with(sv, SV("\r\n"))) { return LineEnd; }
 
     *length = 1;
+    if (sv_starts_with(sv, SV("\n"))) { return LineEnd; }
     if (sv_starts_with(sv, SV(";"))) { return Semicolon; }
     if (sv_starts_with(sv, SV("{"))) { return ScopeOpen; }
     if (sv_starts_with(sv, SV("}"))) { return ScopeClose; }
@@ -293,6 +314,8 @@ static enum punctuation_type is_punctuation(string_view sv, size_t *length) {
     if (sv_starts_with(sv, SV(")"))) { return ParenthesesClose; }
     if (sv_starts_with(sv, SV("["))) { return BracketOpen; }
     if (sv_starts_with(sv, SV("]"))) { return BracketClose; }
+    if (sv_starts_with(sv, SV(","))) { return Comma; }
+    if (sv_starts_with(sv, SV("."))) { return Dot; }
 
     *length = 0;
     return PUNCTUATION_TYPE_SIZE;

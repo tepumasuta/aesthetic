@@ -39,11 +39,16 @@ enum operation_type {
     PlainCopy=5,
     DefineBinding=6,
     BoostyBinding=7,
+    CommentLine=8,
     OPERATION_TYPE_SIZE
 };
 
 enum keyword_type {
     If=0,
+    When=1,
+    Whenever=2,
+    Exist=3,
+    On=4,
     KEYWORD_TYPE_SIZE
 };
 
@@ -55,6 +60,9 @@ enum punctuation_type {
     ParenthesesClose=4,
     BracketOpen=5,
     BracketClose=6,
+    Comma=7,
+    Dot=8,
+    LineEnd=9,
     PUNCTUATION_TYPE_SIZE
 };
 
