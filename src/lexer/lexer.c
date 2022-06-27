@@ -125,6 +125,7 @@ static void convert_to_punctuation(LEXER *lexer, token *t, enum punctuation_type
     lexer->current_pos.col += size;
 }
 
+
 token lex_token(LEXER *lexer) {
     token t;
     t.valid = false;
@@ -185,7 +186,7 @@ token lex_token(LEXER *lexer) {
 }
 
 LEXER *lexer_from_text(char *text) {
-    LEXER* lexer = malloc(sizeof(LEXER));
+    LEXER *lexer = malloc(sizeof(LEXER));
 
     if (!lexer) {
         return NULL;
