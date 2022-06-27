@@ -1,5 +1,9 @@
 #include "sv.h"
 
+bool is_space(char c) {
+    return c == ' ' || c == '\t';
+}
+
 string_view sv_from_parts(const char *data, size_t count)
 {
     string_view sv;
@@ -16,27 +20,7 @@ string_view sv_from_cstr(const char *cstr)
 string_view sv_trim_left(string_view sv)
 {
     size_t i = 0;
-    while (i < sv.count && isspace(sv.data[i])) {
-        i += 1;
-    }
-
-    return sv_from_parts(sv.data + i, sv.count - i);
-}
-
-string_view sv_trim_left_counted(string_view sv, size_t *newlines, size_t *spaces)
-{
-    *newlines = 0;
-    *spaces = 0;
-    size_t i = 0;
-    while (i < sv.count && isspace(sv.data[i])) {
-
-        if (sv.data[i] == '\n') {
-            *spaces = 1;
-            (*newlines)++;
-        } else {
-            (*spaces)++;
-        }
-
+    while (i < sv.count && is_space(sv.data[i])) {
         i += 1;
     }
 
@@ -46,7 +30,7 @@ string_view sv_trim_left_counted(string_view sv, size_t *newlines, size_t *space
 string_view sv_trim_right(string_view sv)
 {
     size_t i = 0;
-    while (i < sv.count && isspace(sv.data[sv.count - 1 - i])) {
+    while (i < sv.count && is_space(sv.data[sv.count - 1 - i])) {
         i += 1;
     }
 
