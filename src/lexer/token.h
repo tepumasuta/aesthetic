@@ -40,6 +40,7 @@ enum operation_type {
     DefineBinding=6,
     BoostyBinding=7,
     CommentLine=8,
+    Pipe=9,
     OPERATION_TYPE_SIZE
 };
 

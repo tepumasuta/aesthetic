@@ -6,8 +6,10 @@
 #ifdef AE_DEBUG
 static_assert(TOKEN_TYPE_SIZE == 6, "Not all token_type values are handled");
 static const char *TOKEN_TYPE_CONVERT_TABLE[] = {"Operator", "Value", "Keyword", "Symbol", "EndOfFile", "Punctuation"};
-static_assert(OPERATION_TYPE_SIZE == 9, "Not all operation_type values are handled");
-static const char *OPERATION_TYPE_CONVERT_TABLE[] = {"+", "-", "*", "/", "//", "=", "::=", ":=", "///"};
+static_assert(OPERATION_TYPE_SIZE == 10, "Not all operation_type values are handled");
+static const char *OPERATION_TYPE_CONVERT_TABLE[] = {
+    "+", "-", "*", "/", "//", "=", "::=", ":=", "///", "~>"
+};
 static_assert(VALUE_TYPE_SIZE == 2, "Not all value_type values are handled");
 static const char *VALUE_TYPE_CONVERT_TABLE[] = {"int", "float"};
 static_assert(INTEGER_LITERAL_TYPE_SIZE == 4, "Not all integer_literal_type values are handled");
