@@ -213,57 +213,12 @@ void lexer_destroy(LEXER* lexer) {
 }
 
 
-static bool is_digit(char c) {
-    return '0' <= c && c <= '9';
-}
-
-static bool is_hex(char c) {
-    return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f');
-}
-
-static bool is_oct(char c) {
-    return '0' <= c && c <= '7';
-}
-
-static bool is_bin(char c) {
-    return c == '0' || c == '1';
-}
-
-static bool is_start_symbolic(char c) {
-    return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_';
-}
-
-static bool is_symbolic(char c) {
-    return is_start_symbolic(c) || is_digit(c);
-}
-
-static enum operation_type is_operator(string_view sv, size_t *length) {
-    static_assert(OPERATION_TYPE_SIZE == 12, "Not all operation_type values were handled");
-
-    // Triple symbol operators
-    *length = 3;
-    if (sv_starts_with(sv, SV("::="))) { return DefineBinding; }
-    if (sv_starts_with(sv, SV("///"))) { return CommentLine; }
-
-    // Double symbol operators
-    *length = 2;
-    if (sv_starts_with(sv, SV("~!"))) { return RecursiveDelete; }
-    if (sv_starts_with(sv, SV("!!"))) { return Delete; }
-    if (sv_starts_with(sv, SV("~>"))) { return Pipe; }
-    if (sv_starts_with(sv, SV("//"))) { return IntegerDivision; }
-    if (sv_starts_with(sv, SV(":="))) { return BoostyBinding; }
-
-    // Mono symbol operators
-    *length = 1;
-    if (sv_starts_with(sv, SV("+"))) { return Addition; }
-    if (sv_starts_with(sv, SV("-"))) { return Substraction; }
-    if (sv_starts_with(sv, SV("*"))) { return Multiplication; }
-    if (sv_starts_with(sv, SV("/"))) { return FloatDivision; }
-    if (sv_starts_with(sv, SV("="))) { return PlainCopy; }
-
-    *length = 0;
-    return OPERATION_TYPE_SIZE;
-}
+static bool is_digit(char c) { return '0' <= c && c <= '9'; }
+static bool is_hex(char c) { return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f'); }
+static bool is_oct(char c) { return '0' <= c && c <= '7'; }
+static bool is_bin(char c) { return c == '0' || c == '1'; }
+static bool is_start_symbolic(char c) { return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_'; }
+static bool is_symbolic(char c) { return is_start_symbolic(c) || is_digit(c); }
 
 static bool compare_full_keyword(string_view sv, char *word, size_t *length) {
     size_t count = strlen(word);
@@ -274,6 +229,37 @@ static bool compare_full_keyword(string_view sv, char *word, size_t *length) {
         return true;
     }
     return false;
+}
+
+static bool compare_prefix(string_view sv, char *word, size_t *length) {
+    size_t count = strlen(word);
+
+    if (sv_starts_with(sv, sv_from_cstr(word))) {
+        *length = count;
+        return true;
+    }
+
+    return false;
+}
+
+static enum operation_type is_operator(string_view sv, size_t *length) {
+    static_assert(OPERATION_TYPE_SIZE == 12, "Not all operation_type values were handled");
+
+    if (compare_prefix(sv, "::=", length)) { return DefineBinding; }
+    if (compare_prefix(sv, "///", length)) { return CommentLine; }
+    if (compare_prefix(sv, "~!", length)) { return RecursiveDelete; }
+    if (compare_prefix(sv, "!!", length)) { return Delete; }
+    if (compare_prefix(sv, "~>", length)) { return Pipe; }
+    if (compare_prefix(sv, "//", length)) { return IntegerDivision; }
+    if (compare_prefix(sv, ":=", length)) { return BoostyBinding; }
+    if (compare_prefix(sv, "+", length)) { return Addition; }
+    if (compare_prefix(sv, "-", length)) { return Substraction; }
+    if (compare_prefix(sv, "*", length)) { return Multiplication; }
+    if (compare_prefix(sv, "/", length)) { return FloatDivision; }
+    if (compare_prefix(sv, "=", length)) { return PlainCopy; }
+
+    *length = 0;
+    return OPERATION_TYPE_SIZE;
 }
 
 static enum keyword_type is_keyword(string_view sv, size_t *length) {
@@ -305,21 +291,18 @@ static bool is_symbol(string_view sv, size_t *length) {
 static enum punctuation_type is_punctuation(string_view sv, size_t *length) {
     static_assert(PUNCTUATION_TYPE_SIZE == 11, "Not all punctuation_type values were handled");
 
-    *length = 2;
-    if (sv_starts_with(sv, SV("\r\n"))) { return LineEnd; }
-
-    *length = 1;
-    if (sv_starts_with(sv, SV(":"))) { return Colon; }
-    if (sv_starts_with(sv, SV("\n"))) { return LineEnd; }
-    if (sv_starts_with(sv, SV(";"))) { return Semicolon; }
-    if (sv_starts_with(sv, SV("{"))) { return ScopeOpen; }
-    if (sv_starts_with(sv, SV("}"))) { return ScopeClose; }
-    if (sv_starts_with(sv, SV("("))) { return ParenthesesOpen; }
-    if (sv_starts_with(sv, SV(")"))) { return ParenthesesClose; }
-    if (sv_starts_with(sv, SV("["))) { return BracketOpen; }
-    if (sv_starts_with(sv, SV("]"))) { return BracketClose; }
-    if (sv_starts_with(sv, SV(","))) { return Comma; }
-    if (sv_starts_with(sv, SV("."))) { return Dot; }
+    if (compare_prefix(sv, "\r\n", length)) { return LineEnd; }
+    if (compare_prefix(sv, ":", length)) { return Colon; }
+    if (compare_prefix(sv, "\n", length)) { return LineEnd; }
+    if (compare_prefix(sv, ";", length)) { return Semicolon; }
+    if (compare_prefix(sv, "{", length)) { return ScopeOpen; }
+    if (compare_prefix(sv, "}", length)) { return ScopeClose; }
+    if (compare_prefix(sv, "(", length)) { return ParenthesesOpen; }
+    if (compare_prefix(sv, ")", length)) { return ParenthesesClose; }
+    if (compare_prefix(sv, "[", length)) { return BracketOpen; }
+    if (compare_prefix(sv, "]", length)) { return BracketClose; }
+    if (compare_prefix(sv, ",", length)) { return Comma; }
+    if (compare_prefix(sv, ".", length)) { return Dot; }
 
     *length = 0;
     return PUNCTUATION_TYPE_SIZE;
