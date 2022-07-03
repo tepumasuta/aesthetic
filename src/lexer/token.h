@@ -19,6 +19,7 @@ enum token_type {
 enum value_type {
     Integer=0,
     FloatingPoint=1,
+    String=2,
     VALUE_TYPE_SIZE
 };
 
@@ -79,11 +80,16 @@ typedef struct integer_literal_token {
     enum integer_literal_type int_lit_type;
 } integer_literal_token;
 
+typedef struct string_literal_token {
+    size_t length;
+} string_literal_token;
+
 typedef struct value_token {
     string_view contents;
     enum value_type val_type;
     union {
         integer_literal_token int_lit;
+        string_literal_token str_lit;
     };
 } value_token;
 

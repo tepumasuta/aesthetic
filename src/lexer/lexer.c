@@ -21,6 +21,7 @@ static bool is_oct(char c);
 static bool is_bin(char c);
 static bool is_start_symbolic(char c);
 static bool is_symbolic(char c);
+static bool is_string_bound(char c);
 static enum operation_type is_operator(string_view sv, size_t *length);
 static enum keyword_type is_keyword(string_view sv, size_t *length);
 static enum punctuation_type is_punctuation(string_view sv, size_t *length);
@@ -88,6 +89,10 @@ static void convert_to_number(LEXER *lexer, token *t) {
     lexer->current_pos.col += passed;
 }
 
+static void convert_to_string(LEXER *lexer, token *t) {
+    assert(0 && "Not implemented yet");
+}
+
 static void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, size_t size) {
     t->valid = true;
     t->type = Operator;
@@ -152,6 +157,11 @@ token lex_token(LEXER *lexer) {
 
     if (is_digit(*lexer->text_pos.data)) {
         convert_to_number(lexer, &t);
+        return t;
+    }
+
+    if (is_string_bound(*lexer->text_pos.data)) {
+        convert_to_string(lexer, &t);
         return t;
     }
 
@@ -235,6 +245,10 @@ static bool is_start_symbolic(char c) {
 
 static bool is_symbolic(char c) {
     return is_start_symbolic(c) || is_digit(c);
+}
+
+static bool is_string_bound(char c) {
+    return c == '"' || c == '\'';
 }
 
 static enum operation_type is_operator(string_view sv, size_t *length) {
