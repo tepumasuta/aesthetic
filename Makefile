@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -std=c18
-CDFLAGS=-DDEBUG -DAE_DEBUG -g3 -O0
+CDFLAGS=-DDEBUG -DAE_DEBUG -ggdb -g3 -O0
 CRFLAGS=-DNDEBUG -g0 -O2
 SRC=src
 BIN=bin
@@ -35,14 +35,20 @@ $(OBJ)/tokenized_program.o: $(SRC)/lexer/tokenized_program.c $(SRC)/lexer/tokeni
 $(OBJ)/segment.o: $(SRC)/data_structures/segment.c $(SRC)/data_structures/segment.h
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-$(OBJ)/darray_token.o: $(SRC)/temp_lib_inst/darray/darray_token.c $(SRC)/temp_lib_inst/darray/darray_token.h
+$(OBJ)/darray_token.o: $(SRC)/temp_lib_inst/darray/darray_token.c $(SRC)/temp_lib_inst/darray/darray_token.h $(OBJ)/token.o
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-$(OBJ)/darray_segment.o: $(SRC)/temp_lib_inst/darray/darray_segment.c $(SRC)/temp_lib_inst/darray/darray_segment.h
+$(OBJ)/darray_segment.o: $(SRC)/temp_lib_inst/darray/darray_segment.c $(SRC)/temp_lib_inst/darray/darray_segment.h $(OBJ)/segment.o
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 $(LIB)/sv/sv.o: $(LIB)/sv/sv.c $(LIB)/sv/sv.h
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 clean:
-	rm $(OBJ)/*.o bin/aesthetic*
+	rm $(OBJ)/*.o $(BIN)/aesthetic*
+
+clean-obj:
+	rm $(OBJ)/*.o
+
+clean-exec:
+	rm $(BIN)/aesthetic*
