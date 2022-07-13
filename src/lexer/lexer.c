@@ -95,6 +95,12 @@ static void convert_to_string(LEXER *lexer, token *t) {
     
     for (size_t i = 1; i < lexer->text_pos.length; i++) {
         count++;
+        lexer->current_pos.col += 1;
+
+        if (lexer->text_pos.start[i] == '\n') {
+            lexer->current_pos.col = 1;
+            lexer->current_pos.line += 1;
+        }
 
         if (!escaped && lexer->text_pos.start[i] == start_bound)
             break;
@@ -199,7 +205,7 @@ token lex_token(LEXER *lexer) {
        
         if (pt_type == LineEnd) {
             lexer->current_pos.line++;
-            lexer->current_pos.col = 0;
+            lexer->current_pos.col = 1;
         }
             
         return t;
