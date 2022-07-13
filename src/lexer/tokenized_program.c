@@ -4,8 +4,7 @@
 #include "stdio.h"
 #include "assert.h"
 
-#include "sv/sv.h"
-
+#include "data_structures/string_view.h"
 #include "token.h"
 #include "tokenized_program.h"
 #include "temp_lib_inst/darray/darray_token.h"
@@ -35,8 +34,8 @@ static void tokenized_program_remap_tokens(tokenized_program *tk_prog) {
         if (!with_contents)
             continue;
         
-        size_t start = sv.data - text;
-        segment seg = segment_create(start, start + sv.count - 1);
+        size_t start = sv.start - text;
+        segment seg = segment_create(start, start + sv.length - 1);
         size_t new_size = segment_unite(segs_tmp->arr, segs_tmp->size, seg);
         segs_tmp->size = new_size;
     }
@@ -56,10 +55,10 @@ static void tokenized_program_remap_tokens(tokenized_program *tk_prog) {
 
         switch (last_token_type) {
             case Value:
-                tk_prog->tokens->arr[j++].val.contents.data = last_pos_write;
+                tk_prog->tokens->arr[j++].val.contents.start = last_pos_write;
                 break;
             case Symbol:
-                tk_prog->tokens->arr[j++].sym.contents.data = last_pos_write;
+                tk_prog->tokens->arr[j++].sym.contents.start = last_pos_write;
                 break;
             default:
                 assert(0 && "Unreachable in tokenized_program");

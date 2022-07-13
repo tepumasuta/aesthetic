@@ -3,10 +3,9 @@
 #include "stdlib.h"
 #include "string.h"
 #include "assert.h"
+
 #include "token.h"
-
-#include "sv/sv.h"
-
+#include "data_structures/string_view.h"
 #include "lexer.h"
 
 typedef struct LEXER_impl {
@@ -27,8 +26,8 @@ static enum punctuation_type is_punctuation(string_view sv, size_t *length);
 static bool is_symbol(string_view sv, size_t *length);
 
 static void convert_to_number(LEXER *lexer, token *t) {
-    const char* lp = lexer->text_pos.data;
-    size_t count = lexer->text_pos.count;
+    const char* lp = lexer->text_pos.start;
+    size_t count = lexer->text_pos.length;
 
     t->type = Value;
     t->valid = true;
@@ -37,17 +36,17 @@ static void convert_to_number(LEXER *lexer, token *t) {
     bool is_plain_integer = true;
     enum integer_literal_type int_type;
     
-    if (sv_starts_with(lexer->text_pos, SV("0x"))) {
+    if (sv_starts_with(&lexer->text_pos, SV("0x"))) {
         int_type = Hex;
         lp += 2;
         count -= 2;
         digit_check = is_hex;
-    } else if (sv_starts_with(lexer->text_pos, SV("0o"))) {
+    } else if (sv_starts_with(&lexer->text_pos, SV("0o"))) {
         int_type = Oct;
         lp += 2;
         count -= 2;
         digit_check = is_oct;
-    } else if (sv_starts_with(lexer->text_pos, SV("0b"))) {
+    } else if (sv_starts_with(&lexer->text_pos, SV("0b"))) {
         int_type = Bin;
         lp += 2;
         count -= 2;
@@ -73,9 +72,9 @@ static void convert_to_number(LEXER *lexer, token *t) {
         }
     }
 
-    size_t passed = lp - lexer->text_pos.data;
+    size_t passed = lp - lexer->text_pos.start;
 
-    t->val.contents = sv_from_parts(lexer->text_pos.data, passed);
+    t->val.contents = sv_from_parts(lexer->text_pos.start, passed);
 
     if (is_plain_integer) {
         t->val.val_type = Integer;
@@ -84,7 +83,7 @@ static void convert_to_number(LEXER *lexer, token *t) {
         t->val.val_type = FloatingPoint;
     }
 
-    sv_chop_left(&(lexer->text_pos), passed);
+    sv_step(&lexer->text_pos, passed);
     lexer->current_pos.col += passed;
 }
 
@@ -93,8 +92,7 @@ static void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_t
     t->type = Operator;
     t->op.op_type = op_type;
     t->op.length = size;
-    lexer->text_pos.count -= size;
-    lexer->text_pos.data += size;
+    sv_step(&lexer->text_pos, size);
     lexer->current_pos.col += size;
 }
 
@@ -102,17 +100,15 @@ static void convert_to_keyword(LEXER *lexer, token *t, enum keyword_type kw_type
     t->valid = true;
     t->type = Keyword;
     t->kw.kw_type = kw_type;
-    lexer->text_pos.count -= size;
-    lexer->text_pos.data += size;
+    sv_step(&lexer->text_pos, size);
     lexer->current_pos.col += size;
 }
 
 static void convert_to_symbol(LEXER *lexer, token *t, size_t size) {
     t->valid = true;
     t->type = Symbol;
-    t->sym.contents = sv_from_parts(lexer->text_pos.data, size);
-    lexer->text_pos.count -= size;
-    lexer->text_pos.data += size;
+    t->sym.contents = sv_from_parts(lexer->text_pos.start, size);
+    sv_step(&lexer->text_pos, size);
     lexer->current_pos.col += size;
 }
 
@@ -120,8 +116,7 @@ static void convert_to_punctuation(LEXER *lexer, token *t, enum punctuation_type
     t->valid = true;
     t->type = Punctuation;
     t->pt.pt_type = pt_type;
-    lexer->text_pos.count -= size;
-    lexer->text_pos.data += size;
+    sv_step(&lexer->text_pos, size);
     lexer->current_pos.col += size;
 }
 
@@ -137,20 +132,20 @@ token lex_token(LEXER *lexer) {
 
     t.pos = lexer->current_pos;
 
-    if (!lexer->text_pos.data[0]) {
+    if (!lexer->text_pos.start[0]) {
         t.valid = true;
         t.type = EndOfFile;
         return t;
     }
 
-    const char *before = lexer->text_pos.data;
-    lexer->text_pos = sv_trim_left(lexer->text_pos);
-    size_t spaces = lexer->text_pos.data - before;
+    const char *before = lexer->text_pos.start;
+    sv_trim_left(&lexer->text_pos);
+    size_t spaces = lexer->text_pos.start - before;
     lexer->current_pos.col += spaces;
 
     t.pos = lexer->current_pos;    
 
-    if (is_digit(*lexer->text_pos.data)) {
+    if (is_digit(*lexer->text_pos.start)) {
         convert_to_number(lexer, &t);
         return t;
     }
@@ -223,8 +218,8 @@ static bool is_symbolic(char c) { return is_start_symbolic(c) || is_digit(c); }
 static bool compare_full_keyword(string_view sv, char *word, size_t *length) {
     size_t count = strlen(word);
     
-    if (sv_starts_with(sv, sv_from_cstr(word))
-    && (sv.count < count + 1 || !is_symbolic(sv.data[count]))) {
+    if (sv_starts_with(&sv, sv_from_cstr(word))
+    && (sv.length < count + 1 || !is_symbolic(sv.start[count]))) {
         *length = count;
         return true;
     }
@@ -234,7 +229,7 @@ static bool compare_full_keyword(string_view sv, char *word, size_t *length) {
 static bool compare_prefix(string_view sv, char *word, size_t *length) {
     size_t count = strlen(word);
 
-    if (sv_starts_with(sv, sv_from_cstr(word))) {
+    if (sv_starts_with(&sv, sv_from_cstr(word))) {
         *length = count;
         return true;
     }
@@ -278,8 +273,8 @@ static enum keyword_type is_keyword(string_view sv, size_t *length) {
 static bool is_symbol(string_view sv, size_t *length) {
     *length = 0;
 
-    if (is_start_symbolic(*sv.data)) {
-        while (sv.count-- && is_symbolic(*sv.data++)) {
+    if (is_start_symbolic(*sv.start)) {
+        while (sv.length-- && is_symbolic(*sv.start++)) {
             (*length)++;
         }
         return true;
