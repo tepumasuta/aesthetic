@@ -7,6 +7,7 @@
 #include "token.h"
 #include "data_structures/string_view.h"
 #include "lexer.h"
+#include "utility/character.h"
 
 typedef struct LEXER_impl {
     position current_pos;
@@ -14,13 +15,6 @@ typedef struct LEXER_impl {
     string_view text_pos;
 } LEXER;
 
-static bool is_digit(char c);
-static bool is_hex(char c);
-static bool is_oct(char c);
-static bool is_bin(char c);
-static bool is_start_symbolic(char c);
-static bool is_symbolic(char c);
-static bool is_string_bound(char c);
 static enum operation_type is_operator(string_view sv, size_t *length);
 static enum keyword_type is_keyword(string_view sv, size_t *length);
 static enum punctuation_type is_punctuation(string_view sv, size_t *length);
@@ -243,13 +237,6 @@ void lexer_destroy(LEXER* lexer) {
 }
 
 
-static bool is_digit(char c) { return '0' <= c && c <= '9'; }
-static bool is_hex(char c) { return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f'); }
-static bool is_oct(char c) { return '0' <= c && c <= '7'; }
-static bool is_bin(char c) { return c == '0' || c == '1'; }
-static bool is_start_symbolic(char c) { return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_'; }
-static bool is_symbolic(char c) { return is_start_symbolic(c) || is_digit(c); }
-
 static bool compare_full_keyword(string_view sv, char *word, size_t *length) {
     size_t count = strlen(word);
     
@@ -270,10 +257,6 @@ static bool compare_prefix(string_view sv, char *word, size_t *length) {
     }
 
     return false;
-}
-
-static bool is_string_bound(char c) {
-    return c == '"' || c == '\'';
 }
 
 static enum operation_type is_operator(string_view sv, size_t *length) {

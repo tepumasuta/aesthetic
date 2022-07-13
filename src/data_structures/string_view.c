@@ -2,11 +2,7 @@
 #include "stdbool.h"
 
 #include "string_view.h"
-
-
-bool is_space(char c) {
-    return c == '\t' || c == ' ';
-}
+#include "utility/character.h"
 
 
 string_view sv_from_parts(char *raw, size_t length) {
