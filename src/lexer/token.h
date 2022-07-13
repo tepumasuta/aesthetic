@@ -1,7 +1,7 @@
 #include "stdbool.h"
 #include "stddef.h"
 
-#include "sv/sv.h"
+#include "data_structures/string_view.h"
 
 #ifndef TOKEN_H
 #define TOKEN_H

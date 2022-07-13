@@ -3,10 +3,9 @@
 #include "stdlib.h"
 #include "string.h"
 #include "assert.h"
+
 #include "token.h"
-
-#include "sv/sv.h"
-
+#include "data_structures/string_view.h"
 #include "lexer.h"
 
 typedef struct LEXER_impl {
@@ -28,8 +27,8 @@ static enum punctuation_type is_punctuation(string_view sv, size_t *length);
 static bool is_symbol(string_view sv, size_t *length);
 
 static void convert_to_number(LEXER *lexer, token *t) {
-    const char* lp = lexer->text_pos.data;
-    size_t count = lexer->text_pos.count;
+    const char* lp = lexer->text_pos.start;
+    size_t count = lexer->text_pos.length;
 
     t->type = Value;
     t->valid = true;
@@ -38,17 +37,17 @@ static void convert_to_number(LEXER *lexer, token *t) {
     bool is_plain_integer = true;
     enum integer_literal_type int_type;
     
-    if (sv_starts_with(lexer->text_pos, SV("0x"))) {
+    if (sv_starts_with(&lexer->text_pos, SV("0x"))) {
         int_type = Hex;
         lp += 2;
         count -= 2;
         digit_check = is_hex;
-    } else if (sv_starts_with(lexer->text_pos, SV("0o"))) {
+    } else if (sv_starts_with(&lexer->text_pos, SV("0o"))) {
         int_type = Oct;
         lp += 2;
         count -= 2;
         digit_check = is_oct;
-    } else if (sv_starts_with(lexer->text_pos, SV("0b"))) {
+    } else if (sv_starts_with(&lexer->text_pos, SV("0b"))) {
         int_type = Bin;
         lp += 2;
         count -= 2;
@@ -74,9 +73,9 @@ static void convert_to_number(LEXER *lexer, token *t) {
         }
     }
 
-    size_t passed = lp - lexer->text_pos.data;
+    size_t passed = lp - lexer->text_pos.start;
 
-    t->val.contents = sv_from_parts(lexer->text_pos.data, passed);
+    t->val.contents = sv_from_parts(lexer->text_pos.start, passed);
 
     if (is_plain_integer) {
         t->val.val_type = Integer;
@@ -85,7 +84,7 @@ static void convert_to_number(LEXER *lexer, token *t) {
         t->val.val_type = FloatingPoint;
     }
 
-    sv_chop_left(&(lexer->text_pos), passed);
+    sv_step(&lexer->text_pos, passed);
     lexer->current_pos.col += passed;
 }
 
@@ -98,8 +97,7 @@ static void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_t
     t->type = Operator;
     t->op.op_type = op_type;
     t->op.length = size;
-    lexer->text_pos.count -= size;
-    lexer->text_pos.data += size;
+    sv_step(&lexer->text_pos, size);
     lexer->current_pos.col += size;
 }
 
@@ -107,17 +105,15 @@ static void convert_to_keyword(LEXER *lexer, token *t, enum keyword_type kw_type
     t->valid = true;
     t->type = Keyword;
     t->kw.kw_type = kw_type;
-    lexer->text_pos.count -= size;
-    lexer->text_pos.data += size;
+    sv_step(&lexer->text_pos, size);
     lexer->current_pos.col += size;
 }
 
 static void convert_to_symbol(LEXER *lexer, token *t, size_t size) {
     t->valid = true;
     t->type = Symbol;
-    t->sym.contents = sv_from_parts(lexer->text_pos.data, size);
-    lexer->text_pos.count -= size;
-    lexer->text_pos.data += size;
+    t->sym.contents = sv_from_parts(lexer->text_pos.start, size);
+    sv_step(&lexer->text_pos, size);
     lexer->current_pos.col += size;
 }
 
@@ -125,8 +121,7 @@ static void convert_to_punctuation(LEXER *lexer, token *t, enum punctuation_type
     t->valid = true;
     t->type = Punctuation;
     t->pt.pt_type = pt_type;
-    lexer->text_pos.count -= size;
-    lexer->text_pos.data += size;
+    sv_step(&lexer->text_pos, size);
     lexer->current_pos.col += size;
 }
 
@@ -142,20 +137,20 @@ token lex_token(LEXER *lexer) {
 
     t.pos = lexer->current_pos;
 
-    if (!lexer->text_pos.data[0]) {
+    if (!lexer->text_pos.start[0]) {
         t.valid = true;
         t.type = EndOfFile;
         return t;
     }
 
-    const char *before = lexer->text_pos.data;
-    lexer->text_pos = sv_trim_left(lexer->text_pos);
-    size_t spaces = lexer->text_pos.data - before;
+    const char *before = lexer->text_pos.start;
+    sv_trim_left(&lexer->text_pos);
+    size_t spaces = lexer->text_pos.start - before;
     lexer->current_pos.col += spaces;
 
     t.pos = lexer->current_pos;    
 
-    if (is_digit(*lexer->text_pos.data)) {
+    if (is_digit(*lexer->text_pos.start)) {
         convert_to_number(lexer, &t);
         return t;
     }
@@ -223,28 +218,33 @@ void lexer_destroy(LEXER* lexer) {
 }
 
 
-static bool is_digit(char c) {
-    return '0' <= c && c <= '9';
+static bool is_digit(char c) { return '0' <= c && c <= '9'; }
+static bool is_hex(char c) { return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f'); }
+static bool is_oct(char c) { return '0' <= c && c <= '7'; }
+static bool is_bin(char c) { return c == '0' || c == '1'; }
+static bool is_start_symbolic(char c) { return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_'; }
+static bool is_symbolic(char c) { return is_start_symbolic(c) || is_digit(c); }
+
+static bool compare_full_keyword(string_view sv, char *word, size_t *length) {
+    size_t count = strlen(word);
+    
+    if (sv_starts_with(&sv, sv_from_cstr(word))
+    && (sv.length < count + 1 || !is_symbolic(sv.start[count]))) {
+        *length = count;
+        return true;
+    }
+    return false;
 }
 
-static bool is_hex(char c) {
-    return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f');
-}
+static bool compare_prefix(string_view sv, char *word, size_t *length) {
+    size_t count = strlen(word);
 
-static bool is_oct(char c) {
-    return '0' <= c && c <= '7';
-}
+    if (sv_starts_with(&sv, sv_from_cstr(word))) {
+        *length = count;
+        return true;
+    }
 
-static bool is_bin(char c) {
-    return c == '0' || c == '1';
-}
-
-static bool is_start_symbolic(char c) {
-    return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_';
-}
-
-static bool is_symbolic(char c) {
-    return is_start_symbolic(c) || is_digit(c);
+    return false;
 }
 
 static bool is_string_bound(char c) {
@@ -254,40 +254,21 @@ static bool is_string_bound(char c) {
 static enum operation_type is_operator(string_view sv, size_t *length) {
     static_assert(OPERATION_TYPE_SIZE == 12, "Not all operation_type values were handled");
 
-    // Triple symbol operators
-    *length = 3;
-    if (sv_starts_with(sv, SV("::="))) { return DefineBinding; }
-    if (sv_starts_with(sv, SV("///"))) { return CommentLine; }
-
-    // Double symbol operators
-    *length = 2;
-    if (sv_starts_with(sv, SV("~!"))) { return RecursiveDelete; }
-    if (sv_starts_with(sv, SV("!!"))) { return Delete; }
-    if (sv_starts_with(sv, SV("~>"))) { return Pipe; }
-    if (sv_starts_with(sv, SV("//"))) { return IntegerDivision; }
-    if (sv_starts_with(sv, SV(":="))) { return BoostyBinding; }
-
-    // Mono symbol operators
-    *length = 1;
-    if (sv_starts_with(sv, SV("+"))) { return Addition; }
-    if (sv_starts_with(sv, SV("-"))) { return Substraction; }
-    if (sv_starts_with(sv, SV("*"))) { return Multiplication; }
-    if (sv_starts_with(sv, SV("/"))) { return FloatDivision; }
-    if (sv_starts_with(sv, SV("="))) { return PlainCopy; }
+    if (compare_prefix(sv, "::=", length)) { return DefineBinding; }
+    if (compare_prefix(sv, "///", length)) { return CommentLine; }
+    if (compare_prefix(sv, "~!", length)) { return RecursiveDelete; }
+    if (compare_prefix(sv, "!!", length)) { return Delete; }
+    if (compare_prefix(sv, "~>", length)) { return Pipe; }
+    if (compare_prefix(sv, "//", length)) { return IntegerDivision; }
+    if (compare_prefix(sv, ":=", length)) { return BoostyBinding; }
+    if (compare_prefix(sv, "+", length)) { return Addition; }
+    if (compare_prefix(sv, "-", length)) { return Substraction; }
+    if (compare_prefix(sv, "*", length)) { return Multiplication; }
+    if (compare_prefix(sv, "/", length)) { return FloatDivision; }
+    if (compare_prefix(sv, "=", length)) { return PlainCopy; }
 
     *length = 0;
     return OPERATION_TYPE_SIZE;
-}
-
-static bool compare_full_keyword(string_view sv, char *word, size_t *length) {
-    size_t count = strlen(word);
-    
-    if (sv_starts_with(sv, sv_from_cstr(word))
-    && (sv.count < count + 1 || !is_symbolic(sv.data[count]))) {
-        *length = count;
-        return true;
-    }
-    return false;
 }
 
 static enum keyword_type is_keyword(string_view sv, size_t *length) {
@@ -306,8 +287,8 @@ static enum keyword_type is_keyword(string_view sv, size_t *length) {
 static bool is_symbol(string_view sv, size_t *length) {
     *length = 0;
 
-    if (is_start_symbolic(*sv.data)) {
-        while (sv.count-- && is_symbolic(*sv.data++)) {
+    if (is_start_symbolic(*sv.start)) {
+        while (sv.length-- && is_symbolic(*sv.start++)) {
             (*length)++;
         }
         return true;
@@ -319,21 +300,18 @@ static bool is_symbol(string_view sv, size_t *length) {
 static enum punctuation_type is_punctuation(string_view sv, size_t *length) {
     static_assert(PUNCTUATION_TYPE_SIZE == 11, "Not all punctuation_type values were handled");
 
-    *length = 2;
-    if (sv_starts_with(sv, SV("\r\n"))) { return LineEnd; }
-
-    *length = 1;
-    if (sv_starts_with(sv, SV(":"))) { return Colon; }
-    if (sv_starts_with(sv, SV("\n"))) { return LineEnd; }
-    if (sv_starts_with(sv, SV(";"))) { return Semicolon; }
-    if (sv_starts_with(sv, SV("{"))) { return ScopeOpen; }
-    if (sv_starts_with(sv, SV("}"))) { return ScopeClose; }
-    if (sv_starts_with(sv, SV("("))) { return ParenthesesOpen; }
-    if (sv_starts_with(sv, SV(")"))) { return ParenthesesClose; }
-    if (sv_starts_with(sv, SV("["))) { return BracketOpen; }
-    if (sv_starts_with(sv, SV("]"))) { return BracketClose; }
-    if (sv_starts_with(sv, SV(","))) { return Comma; }
-    if (sv_starts_with(sv, SV("."))) { return Dot; }
+    if (compare_prefix(sv, "\r\n", length)) { return LineEnd; }
+    if (compare_prefix(sv, ":", length)) { return Colon; }
+    if (compare_prefix(sv, "\n", length)) { return LineEnd; }
+    if (compare_prefix(sv, ";", length)) { return Semicolon; }
+    if (compare_prefix(sv, "{", length)) { return ScopeOpen; }
+    if (compare_prefix(sv, "}", length)) { return ScopeClose; }
+    if (compare_prefix(sv, "(", length)) { return ParenthesesOpen; }
+    if (compare_prefix(sv, ")", length)) { return ParenthesesClose; }
+    if (compare_prefix(sv, "[", length)) { return BracketOpen; }
+    if (compare_prefix(sv, "]", length)) { return BracketClose; }
+    if (compare_prefix(sv, ",", length)) { return Comma; }
+    if (compare_prefix(sv, ".", length)) { return Dot; }
 
     *length = 0;
     return PUNCTUATION_TYPE_SIZE;
