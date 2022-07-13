@@ -89,7 +89,26 @@ static void convert_to_number(LEXER *lexer, token *t) {
 }
 
 static void convert_to_string(LEXER *lexer, token *t) {
-    assert(0 && "Not implemented yet");
+    size_t count = 1;
+    char start_bound = *lexer->text_pos.start;
+    bool escaped = false;
+    
+    for (size_t i = 1; i < lexer->text_pos.length; i++) {
+        count++;
+
+        if (!escaped && lexer->text_pos.start[i] == start_bound)
+            break;
+
+        escaped = lexer->text_pos.start[i] == '\\';
+    }
+
+    t->valid = true;
+    t->type = Value;
+    t->val.val_type = String;
+    t->val.contents = sv_from_parts(lexer->text_pos.start, count);
+    t->val.str_lit.length = count - 2;
+    sv_step(&lexer->text_pos, count);
+    lexer->current_pos.col += count;
 }
 
 static void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, size_t size) {
@@ -155,7 +174,7 @@ token lex_token(LEXER *lexer) {
         return t;
     }
 
-    if (is_string_bound(*lexer->text_pos.data)) {
+    if (is_string_bound(*lexer->text_pos.start)) {
         convert_to_string(lexer, &t);
         return t;
     }
