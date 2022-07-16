@@ -9,7 +9,7 @@ Aesthetic is planned to be:
 - [ ] Interpreted
 - [ ] Compiled
 - [ ] Native
-- [ ] Turing complete (Yes this language is on so early stage of developing so it even isn't turing complete)
+- [ ] Turing complete
 - [ ] Event-oriented
 - [ ] Reactive
 - [ ] Self-hosted
