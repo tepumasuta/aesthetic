@@ -13,3 +13,18 @@ Aesthetic is planned to be:
 - [ ] Event-oriented
 - [ ] Reactive
 - [ ] Self-hosted
+
+## Examples
+
+Simple loop analogue. This program prints numbers from 0 to 999 including both start and end.
+
+``` Aesthetic
+when #start {
+    x ::= 0
+
+    when x >= 1000 { ~!x }
+    on x { print x }
+
+    x := x + 1
+}
+```
