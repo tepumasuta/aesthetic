@@ -1,0 +1,10 @@
+Token[1:1]{Keyword} `if`
+Token[1:3]{Punctuation} `\n`
+Token[2:1]{Keyword} `when`
+Token[2:5]{Punctuation} `\n`
+Token[3:1]{Keyword} `whenever`
+Token[3:9]{Punctuation} `\n`
+Token[4:1]{Keyword} `on`
+Token[4:3]{Punctuation} `\n`
+Token[5:1]{Keyword} `exist`
+Token[5:6]{Punctuation} `\n`
