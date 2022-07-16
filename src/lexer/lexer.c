@@ -335,7 +335,7 @@ static enum integer_literal_type parse_number(string_view sv, size_t *size, stri
     if (*(pos) == '.') {
         while (is_digit(*(++pos)));
 
-        *size = pos - sv.start + 1;
+        *size = pos - sv.start;
 
         contents->start = sv.start;
         contents->length = *size;
