@@ -1,0 +1,11 @@
+Token[1:1]{Value} num: `123` [int] Dec
+Token[1:4]{Punctuation} `\n`
+Token[2:1]{Value} num: `0xff` [int] Hex
+Token[2:5]{Punctuation} `\n`
+Token[3:1]{Value} num: `0o45` [int] Oct
+Token[3:5]{Punctuation} `\n`
+Token[4:1]{Value} num: `0b1101` [int] Bin
+Token[4:7]{Punctuation} `\n`
+Token[5:1]{Value} num: `13.5` [float]
+Token[5:6]{Value} num: `1244213.` [float]
+Token[5:15]{Value} num: `46` [int] Dec

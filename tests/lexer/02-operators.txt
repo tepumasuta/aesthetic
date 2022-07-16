@@ -1,0 +1,17 @@
+Token[1:1]{Operator} `+`
+Token[1:2]{Punctuation} `\n`
+Token[2:1]{Operator} `-`
+Token[2:2]{Punctuation} `\n`
+Token[3:1]{Operator} `*`
+Token[3:2]{Punctuation} `\n`
+Token[4:1]{Operator} `/`
+Token[4:2]{Punctuation} `\n`
+Token[5:1]{Operator} `//`
+Token[5:3]{Punctuation} `\n`
+Token[6:1]{Operator} `=`
+Token[6:2]{Punctuation} `\n`
+Token[7:1]{Operator} `:=`
+Token[7:3]{Punctuation} `\n`
+Token[8:1]{Operator} `::=`
+Token[8:4]{Punctuation} `\n`
+Token[9:1]{Operator} `///`
