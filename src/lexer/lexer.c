@@ -18,97 +18,45 @@ typedef struct LEXER_impl {
 static enum operation_type is_operator(string_view sv, size_t *length);
 static enum keyword_type is_keyword(string_view sv, size_t *length);
 static enum punctuation_type is_punctuation(string_view sv, size_t *length);
+static enum value_type is_value(string_view sv);
+static enum integer_literal_type is_integer_literal(string_view sv);
 static bool is_symbol(string_view sv, size_t *length);
 
-static void convert_to_number(LEXER *lexer, token *t) {
-    const char* lp = lexer->text_pos.start;
-    size_t count = lexer->text_pos.length;
+static void parse_integer_literal(string_view sv, size_t *size, string_view *contents, enum integer_literal_type int_lit);
+static enum integer_literal_type parse_number(string_view sv, size_t *size, string_view *contents);
+static void parse_string(string_view sv, size_t *size, position *pos, string_view *contents);
 
-    t->type = Value;
+static void convert_to_number(LEXER *lexer, token *t, string_view contents, size_t size, enum integer_literal_type int_lit) {
     t->valid = true;
+    t->type = Value;
+    t->val.contents = contents;
+    t->val.val_type = Number;
 
-    bool (*digit_check) (char) = is_digit;
-    bool is_plain_integer = true;
-    enum integer_literal_type int_type;
-    
-    if (sv_starts_with(&lexer->text_pos, SV("0x"))) {
-        int_type = Hex;
-        lp += 2;
-        count -= 2;
-        digit_check = is_hex;
-    } else if (sv_starts_with(&lexer->text_pos, SV("0o"))) {
-        int_type = Oct;
-        lp += 2;
-        count -= 2;
-        digit_check = is_oct;
-    } else if (sv_starts_with(&lexer->text_pos, SV("0b"))) {
-        int_type = Bin;
-        lp += 2;
-        count -= 2;
-        digit_check = is_bin;
+    if (int_lit == INTEGER_LITERAL_TYPE_SIZE) {
+        t->val.num.num_type = FloatingPoint;
     } else {
-        int_type = Dec;
+        t->val.num.num_type = Integer;
+        t->val.num.int_lit = int_lit;
     }
 
-    while (count > 0 && digit_check(*lp)) {
-        lp++;
-        count--;
-    }
-
-    if (count && int_type == Dec && *lp == '.') {
-        is_plain_integer = false;
-        
-        lp++;
-        count--;
-        
-        while (count > 0 && digit_check(*lp)) {
-            lp++;
-            count--;
-        }
-    }
-
-    size_t passed = lp - lexer->text_pos.start;
-
-    t->val.contents = sv_from_parts(lexer->text_pos.start, passed);
-
-    if (is_plain_integer) {
-        t->val.val_type = Integer;
-        t->val.int_lit.int_lit_type = int_type;
-    } else {
-        t->val.val_type = FloatingPoint;
-    }
-
-    sv_step(&lexer->text_pos, passed);
-    lexer->current_pos.col += passed;
+    sv_step(&lexer->text_pos, size);
+    lexer->current_pos.col += size;
 }
 
-static void convert_to_string(LEXER *lexer, token *t) {
-    size_t count = 1;
-    char start_bound = *lexer->text_pos.start;
-    bool escaped = false;
-    
-    for (size_t i = 1; i < lexer->text_pos.length; i++) {
-        count++;
-        lexer->current_pos.col += 1;
-
-        if (lexer->text_pos.start[i] == '\n') {
-            lexer->current_pos.col = 1;
-            lexer->current_pos.line += 1;
-        }
-
-        if (!escaped && lexer->text_pos.start[i] == start_bound)
-            break;
-
-        escaped = lexer->text_pos.start[i] == '\\';
-    }
-
+static void convert_to_string(LEXER *lexer, token *t, string_view contents, size_t size, size_t length, position taken) {
     t->valid = true;
     t->type = Value;
+    t->val.contents = contents;
     t->val.val_type = String;
-    t->val.contents = sv_from_parts(lexer->text_pos.start, count);
-    t->val.str_lit.length = count - 2;
-    sv_step(&lexer->text_pos, count);
-    lexer->current_pos.col += count;
+    t->val.str_lit.length = length;
+
+    sv_step(&lexer->text_pos, size);
+    if (!taken.line)
+        lexer->current_pos.col += size;
+    else {
+        lexer->current_pos.line += taken.line;
+        lexer->current_pos.col = taken.col;
+    }
 }
 
 static void convert_to_operator(LEXER *lexer, token *t, enum operation_type op_type, size_t size) {
@@ -169,17 +117,33 @@ token lex_token(LEXER *lexer) {
 
     t.pos = lexer->current_pos;    
 
-    if (is_digit(*lexer->text_pos.start)) {
-        convert_to_number(lexer, &t);
-        return t;
-    }
-
-    if (is_string_bound(*lexer->text_pos.start)) {
-        convert_to_string(lexer, &t);
-        return t;
-    }
-
     size_t size;
+
+    enum value_type val_type;
+    if ((val_type = is_value(lexer->text_pos)) != VALUE_TYPE_SIZE) {
+        string_view contents;
+        enum integer_literal_type int_lit;
+        position taken;
+
+        switch (val_type) {
+            case Number:
+                int_lit = is_integer_literal(lexer->text_pos);
+                if (int_lit != INTEGER_LITERAL_TYPE_SIZE)
+                    parse_integer_literal(lexer->text_pos, &size, &contents, int_lit);
+                else
+                    int_lit = parse_number(lexer->text_pos, &size, &contents);
+                convert_to_number(lexer, &t, contents, size, int_lit);
+                break;
+            case String:
+                parse_string(lexer->text_pos, &size, &taken, &contents);
+                convert_to_string(lexer, &t, contents, size, size - 2, taken);
+                break;
+            case VALUE_TYPE_SIZE:
+                assert(0 && "Unreachable in lex_token. value_type unexpected");
+                break;
+        }
+        return t;
+    }
 
     enum operation_type op_type;
     if ((op_type = is_operator(lexer->text_pos, &size)) != OPERATION_TYPE_SIZE) {
@@ -252,7 +216,8 @@ static bool compare_prefix(string_view sv, char *word, size_t *length) {
     size_t count = strlen(word);
 
     if (sv_starts_with(&sv, sv_from_cstr(word))) {
-        *length = count;
+        if (length)
+            *length = count;
         return true;
     }
 
@@ -292,18 +257,6 @@ static enum keyword_type is_keyword(string_view sv, size_t *length) {
     return KEYWORD_TYPE_SIZE;
 }
 
-static bool is_symbol(string_view sv, size_t *length) {
-    *length = 0;
-
-    if (is_start_symbolic(*sv.start)) {
-        while (sv.length-- && is_symbolic(*sv.start++)) {
-            (*length)++;
-        }
-        return true;
-    }
-
-    return false;
-}
 
 static enum punctuation_type is_punctuation(string_view sv, size_t *length) {
     static_assert(PUNCTUATION_TYPE_SIZE == 11, "Not all punctuation_type values were handled");
@@ -323,4 +276,103 @@ static enum punctuation_type is_punctuation(string_view sv, size_t *length) {
 
     *length = 0;
     return PUNCTUATION_TYPE_SIZE;
+}
+
+static enum value_type is_value(string_view sv) {
+    if (is_digit(*sv.start)) { return Number; }
+    if (is_string_bound(*sv.start)) { return String; }
+
+    return VALUE_TYPE_SIZE;
+}
+
+static enum integer_literal_type is_integer_literal(string_view sv) {
+    if (compare_prefix(sv, "0x", NULL)) { return Hex; }
+    if (compare_prefix(sv, "0o", NULL)) { return Oct; }
+    if (compare_prefix(sv, "0b", NULL)) { return Bin; }
+
+    return INTEGER_LITERAL_TYPE_SIZE;
+}
+
+static bool is_symbol(string_view sv, size_t *length) {
+    *length = 0;
+
+    if (is_start_symbolic(*sv.start)) {
+        while (sv.length-- && is_symbolic(*sv.start++)) {
+            (*length)++;
+        }
+        return true;
+    }
+
+    return false;
+}
+
+
+static void parse_integer_literal(string_view sv, size_t *size, string_view *contents, enum integer_literal_type int_lit) {
+    assert(int_lit < 3);
+
+    static bool (*check_functions[]) (char) = {is_hex, is_oct, is_bin};
+    bool (*check_char) (char) = check_functions[int_lit];
+
+    char *pos = sv.start;
+    pos += 2;
+
+    while (check_char(*(pos++)));
+    pos--;
+
+    *size = pos - sv.start;
+
+    contents->start = sv.start;
+    contents->length = *size;
+}
+
+static enum integer_literal_type parse_number(string_view sv, size_t *size, string_view *contents) {
+    char *pos = sv.start;
+    
+    while (is_digit(*(pos++)));
+    
+    pos--;
+
+    if (*(pos) == '.') {
+        while (is_digit(*(++pos)));
+
+        *size = pos - sv.start + 1;
+
+        contents->start = sv.start;
+        contents->length = *size;
+
+        return INTEGER_LITERAL_TYPE_SIZE;
+    }
+
+    *size = pos - sv.start;
+
+    contents->start = sv.start;
+    contents->length = *size;
+
+    return Dec;
+}
+
+static void parse_string(string_view sv, size_t *size, position *pos, string_view *contents) {
+    char opening = *sv.start;
+    char *cur = sv.start;
+
+    pos->col = 0;
+    pos->line = 0;
+
+    bool escaped = false;
+
+    while (*cur && (*(++cur) != opening || escaped)) {
+        escaped = *cur == '\\';
+
+        pos->col++;
+
+        if (*cur == '\n') {
+            pos->col = 0;
+            pos->line++;
+        }
+    }
+
+    *size = cur - sv.start + 1;
+
+    contents->start = sv.start;
+    contents->length = *size;
 }
