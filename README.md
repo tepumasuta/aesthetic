@@ -20,11 +20,10 @@ Simple loop analogue. This program prints numbers from 0 to 999 including both s
 
 ``` Aesthetic
 when #start {
-    x ::= 0
-
     when x >= 1000 { ~!x }
     on x { print x }
 
+    x ::= 0
     x := x + 1
 }
 ```
