@@ -5,7 +5,7 @@ CRFLAGS=-DNDEBUG -g0 -O2
 SRC=src
 BIN=bin
 OBJ=$(BIN)/obj
-OBJS=$(OBJ)/token.o
+OBJS=$(OBJ)/token.o $(OBJ)/lexer.o
 LIB=$(SRC)/libs
 LIBS=
 INC=-I$(SRC)/ -I$(LIB)/
@@ -22,6 +22,8 @@ release: compiler
 
 compiler: $(SRC)/aesthetic.cpp $(OBJS) $(LIBS)
 	$(CC) $(CFLAGS) $(INC) -o $(EXEC) $< $(OBJS) $(LIBS)
+
+$(OBJ)/lexer.o: $(SRC)/lexer/token.hpp
 
 $(OBJ)/%.o: $(SRC)/lexer/%.cpp $(SRC)/lexer/%.hpp
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
