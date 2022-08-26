@@ -304,6 +304,7 @@ namespace Aesthetic
         std::stringstream stream;
         stream << "StringToken";
         CommonString(stream);
+        stream << " of length " << stringLength;
         return stream.str();
     }
 
