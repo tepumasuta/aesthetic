@@ -161,7 +161,7 @@ namespace Aesthetic
     protected:
         virtual void CommonString(std::ostream& out) const;
     private:
-        std::string ToString() const;
+        virtual std::string ToString() const;
     };
 
     struct StringToken : public ValueToken
@@ -186,6 +186,10 @@ namespace Aesthetic
         static std::optional<NumberLiteralType> FindPrefix(const std::string_view& text);
 
         NumberToken(bool valid, Position pos, std::string_view contents, NumberLiteralType type);
+    protected:
+        virtual void CommonString(std::ostream& out) const;
+    private:
+        virtual std::string ToString() const;
     };
     
     struct FloatingPointToken : public NumberToken

@@ -321,6 +321,35 @@ namespace Aesthetic
         return std::nullopt;
     }
 
+    void NumberToken::CommonString(std::ostream& out) const
+    {
+        ValueToken::CommonString(out);
+        out << " with " << digitsCount << " digits; literal ";
+        switch (type)
+        {
+        case NumberLiteralType::BIN:
+            out << "0b";
+            break;
+        case NumberLiteralType::OCT:
+            out << "0o";
+            break;
+        case NumberLiteralType::DEC:
+            out << "dec";
+            break;
+        case NumberLiteralType::HEX:
+            out << "0x";
+            break;
+        }
+    }
+
+    std::string NumberToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "NumberToken";
+        CommonString(stream);
+        return stream.str();
+    }
+
     bool NumberToken::IsDigit(const char& sym, NumberLiteralType type)
     {
         switch (type)
