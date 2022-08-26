@@ -2,6 +2,7 @@
 #include <functional>
 #include <algorithm>
 #include <cctype>
+#include <sstream>
 
 #include "token.hpp"
 
@@ -83,6 +84,19 @@ namespace Aesthetic
 
     BasicToken::BasicToken(bool valid, Position pos, Position length)
         : valid(valid), pos(pos), length(length) {}
+        
+    std::string BasicToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "BasicToken[" << pos << ":" << length << "](" << (valid ? "" : "in") << "valid)";
+        return stream.str();
+    }
+        
+    std::ostream& operator<<(std::ostream& out, const BasicToken& token)
+    {
+        out << token.ToString();
+        return out;
+    }
 
 
     EndOfFileToken::EndOfFileToken(Position pos)
@@ -200,7 +214,7 @@ namespace Aesthetic
     
 
     StringToken::StringToken(bool valid, Position pos, std::string_view contents, size_t length)
-        : ValueToken(valid, pos, contents), length(length) {}
+        : ValueToken(valid, pos, contents), stringLength(length) {}
     
     bool StringToken::StringBound(const char& sym)
     {

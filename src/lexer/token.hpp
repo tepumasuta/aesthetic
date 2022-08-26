@@ -83,6 +83,8 @@ namespace Aesthetic
         BasicToken(bool valid, Position pos, size_t length);
 
         friend std::ostream& operator<<(std::ostream& out, const BasicToken& token);
+    private:
+        virtual std::string ToString() const;
     };
 
     struct EndOfFileToken : public BasicToken
@@ -148,7 +150,7 @@ namespace Aesthetic
 
     struct StringToken : public ValueToken
     {
-        size_t length;
+        size_t stringLength;
 
         StringToken(bool valid, Position pos, std::string_view contents, size_t length);
 
