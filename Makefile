@@ -12,7 +12,7 @@ INC=-I$(SRC)/ -I$(LIB)/
 EXEC=$(BIN)/aesthetic
 TEST=$(BIN)/aesthetic-test
 TESTOBJ=$(OBJ)/test
-TESTOBJS=
+TESTOBJS=$(TESTOBJ)/test_lexer.o
 
 all: debug
 
