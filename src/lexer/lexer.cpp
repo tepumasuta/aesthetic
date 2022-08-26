@@ -61,23 +61,10 @@ namespace Aesthetic
 
     void Lexer::SkipGap()
     {
-        bool skipped = false;
-        while (!m_Left.empty() && !skipped)
-        {
-            skipped = true;
-            if (m_Left.starts_with('\n') || m_Left.starts_with("\r\n"))
-            {
-                skipped = false;
-                m_Left.remove_prefix(m_Left.find_first_of('\n') + 1);
-                m_CurrentPosition.col = 1UL;
-                m_CurrentPosition.line++;
-            }
-
-            auto start = m_Left.begin();
-            m_Left.remove_prefix(std::min(m_Left.find_first_not_of(" \t"), m_Left.size()));
-            size_t spaces = m_Left.begin() - start;
-            m_CurrentPosition.col += spaces;
-        }
+        auto start = m_Left.begin();
+        m_Left.remove_prefix(std::min(m_Left.find_first_not_of(" \t"), m_Left.size()));
+        size_t spaces = m_Left.begin() - start;
+        m_CurrentPosition.col += spaces;
     }
 
 } // namespace Aesthetic
