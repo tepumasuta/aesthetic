@@ -241,7 +241,7 @@ namespace Aesthetic
         
         auto x = std::find_if_not(text.begin(), text.end(), Symbolic);
 
-        if (x != text.end())
+        if (x != text.end() && x != text.begin())
             return std::make_shared<SymbolToken>(
                 pos, std::string_view(text.begin(), x)
             );
