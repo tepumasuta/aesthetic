@@ -296,7 +296,17 @@ namespace Aesthetic
         if (text.empty() || !StringBound(text[0]))
             return std::nullopt;
         
-        auto x = std::find_if(text.begin() + 1, text.end(), StringBound);
+        const char openingBound = text[0];
+
+
+        auto x = text.begin() + 1;
+        while (text != text.end())
+        {
+            if (*x == openingBound && *(x - 1) != '\\')
+                break;
+
+            x++;
+        }
 
         if (x != text.end())
             return std::make_shared<StringToken>(
