@@ -1,0 +1,30 @@
+/// Standard number literals
+1234567890
+0xffabcdef0123456789
+0o4201234567
+0b1101
+13.5
+0x1023456789abcdef.ABCDEF
+0o12516173570.1425025125
+0b101.011101
+
+/// Floating point literals with omitted parts
+1244213.
+.123
+0b10.
+0b.10
+0o.01234567
+0o12345670.
+0xABCDEF.
+0x.abcdef
+
+/// String literals
+"qwertyuiop[]asdfghjkl;'zxcvbnm,
+./1234567890-=!@#$%^&*()_+|QWERTYUIOPASDFGHJKLZXCVBNM"
+'qwertyuiop[]asdfghjkl;"zxcvbnm,./1234567890-=!@#$%^&*()_+|QWERTYUIOPASDFGHJK
+LZXCVBNM'
+
+/// Incorrect floating point literal
+0b.
+0o.
+0x.
