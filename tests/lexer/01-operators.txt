@@ -14,11 +14,10 @@ OperatorToken[7:1-0:3](valid) `::=`
 PunctuationToken[7:4-1:1](valid) `\n`
 OperatorToken[8:1-0:2](valid) `:=`
 PunctuationToken[8:3-1:1](valid) `\n`
-PunctuationToken[9:4-1:1](valid) `\n`
-OperatorToken[10:1-0:2](valid) `~>`
+OperatorToken[9:1-0:2](valid) `~>`
+PunctuationToken[9:3-1:1](valid) `\n`
+OperatorToken[10:1-0:2](valid) `!!`
 PunctuationToken[10:3-1:1](valid) `\n`
-OperatorToken[11:1-0:2](valid) `!!`
+OperatorToken[11:1-0:2](valid) `~!`
 PunctuationToken[11:3-1:1](valid) `\n`
-OperatorToken[12:1-0:2](valid) `~!`
-PunctuationToken[12:3-1:1](valid) `\n`
-EOFToken[13:1-0:0](valid)
+EOFToken[12:1-0:0](valid)
