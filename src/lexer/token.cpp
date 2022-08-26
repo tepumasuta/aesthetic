@@ -359,7 +359,7 @@ namespace Aesthetic
         case NumberLiteralType::DEC: return '0' <= sym && sym <= '9';
         case NumberLiteralType::HEX:
             return ('0' <= sym && sym <= '9')
-                || ('a' <= sym && sym <'f')
+                || ('a' <= sym && sym <='f')
                 || ('A' <= sym && sym <= 'F');
         }
 
