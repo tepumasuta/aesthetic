@@ -12,7 +12,7 @@ namespace Aesthetic
         std::vector<TokenRef> result;
         TokenRef token;
 
-        while ((token = LexToken())->valid)
+        while ((token = LexToken())->valid && (dynamic_cast<EOFToken*>(token.get()) == nullptr))
             result.push_back(token);
 
         result.push_back(token);
@@ -47,7 +47,13 @@ namespace Aesthetic
         using TRef = std::shared_ptr<T>;
         if (std::optional<TRef> tokenRef = T::Find(m_Left, m_CurrentPosition))
         {
-            m_CurrentPosition += tokenRef.value()->pos;
+            Position length = tokenRef.value()->length;
+            m_CurrentPosition += length;
+
+            while (length.line--)
+                m_Left.remove_prefix(m_Left.find('\n'));
+            m_Left.remove_prefix(length.col);
+
             return tokenRef;
         }
         return std::nullopt;
@@ -55,11 +61,14 @@ namespace Aesthetic
 
     void Lexer::SkipGap()
     {
-        while (!m_Left.empty())
+        bool skipped = false;
+        while (!m_Left.empty() && !skipped)
         {
+            skipped = true;
             if (m_Left.starts_with('\n') || m_Left.starts_with("\r\n"))
             {
-                m_Left.remove_prefix(m_Left.find_first_of('\n'));
+                skipped = false;
+                m_Left.remove_prefix(m_Left.find_first_of('\n') + 1);
                 m_CurrentPosition.col = 1UL;
                 m_CurrentPosition.line++;
             }
