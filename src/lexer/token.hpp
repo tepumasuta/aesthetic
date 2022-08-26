@@ -178,7 +178,6 @@ namespace Aesthetic
     
     struct NumberToken : public ValueToken
     {
-        size_t digitsCount;
         NumberLiteralType type;
 
         static bool IsDigit(const char& sym, NumberLiteralType type);

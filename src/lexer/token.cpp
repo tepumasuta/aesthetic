@@ -191,7 +191,7 @@ namespace Aesthetic
 
 
     const std::array<std::string, 11UL> PunctuationToken::representations = {
-        ";", "{", "}", "(", ")", "[", "]", ",", ".", "\\n", ":"
+        ";"s, "{"s, "}"s, "("s, ")"s, "["s, "]"s, ","s, "."s, "\n"s, ":"s
     };
 
     PunctuationToken::PunctuationToken(Position pos, PunctuationType type)
@@ -206,6 +206,9 @@ namespace Aesthetic
     {
         return FindHardToken<PunctuationToken, PunctuationType>(text, pos,
             [](const std::string_view& text, const std::string& start) {
+                if (start == "."s)
+                    return text.starts_with('.')
+                        && (text.length() == 1 || !NumberToken::IsDigit(text[1], NumberLiteralType::DEC));
                 return text.starts_with(start);
             }
         );
@@ -216,7 +219,8 @@ namespace Aesthetic
         std::stringstream stream;
         stream << "PunctuationToken";
         CommonString(stream);
-        stream << ' ' << representations[static_cast<size_t>(type)];
+        const std::string& value = representations[static_cast<size_t>(type)];
+        stream << ' ' << (value == "\n"s ? "\\n" : value);
         return stream.str();
     }
 
@@ -324,7 +328,7 @@ namespace Aesthetic
     void NumberToken::CommonString(std::ostream& out) const
     {
         ValueToken::CommonString(out);
-        out << " with " << digitsCount << " digits; literal ";
+        out << " literal ";
         switch (type)
         {
         case NumberLiteralType::BIN:
@@ -369,7 +373,7 @@ namespace Aesthetic
 
     FloatingPointToken::FloatingPointToken(bool valid, Position pos, std::string_view contents, NumberLiteralType type)
         : NumberToken(valid, pos, contents, type) {}
-        
+
     std::optional<FloatingPointTokenRef> FloatingPointToken::Find(const std::string_view& text, const Position& pos)
     {
         NumberLiteralType literalType = NumberToken::FindPrefix(text).value_or(NumberLiteralType::DEC);
@@ -389,7 +393,7 @@ namespace Aesthetic
             [literalType](const char& sym){ return NumberToken::IsDigit(sym, literalType); }
         );
 
-        if (!(fractional - text.begin() == 1) && !(decimal - text.begin()))
+        if ((fractional - decimal == 1) && !(decimal - text.begin()))
         {
             if (literalType != NumberLiteralType::DEC)
                 return std::make_shared<FloatingPointToken>(false, pos, std::string_view(
