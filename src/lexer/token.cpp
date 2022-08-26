@@ -299,6 +299,14 @@ namespace Aesthetic
         return std::make_shared<StringToken>(false, pos, text, text.length() - 1);
     }
 
+    std::string StringToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "StringToken";
+        CommonString(stream);
+        return stream.str();
+    }
+
 
     NumberToken::NumberToken(bool valid, Position pos, std::string_view contents, NumberLiteralType type)
         : ValueToken(valid, pos, contents), type(type) {}

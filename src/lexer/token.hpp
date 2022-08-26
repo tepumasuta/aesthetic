@@ -172,6 +172,8 @@ namespace Aesthetic
 
         static bool StringBound(const char& sym);
         static std::optional<std::shared_ptr<StringToken>> Find(const std::string_view& text, const Position& pos);
+    private:
+        std::string ToString() const;
     };
     
     struct NumberToken : public ValueToken
