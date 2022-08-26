@@ -11,6 +11,8 @@ LIBS=
 INC=-I$(SRC)/ -I$(LIB)/
 EXEC=$(BIN)/aesthetic
 TEST=$(BIN)/aesthetic-test
+TESTOBJ=$(OBJ)/test
+TESTOBJS=
 
 all: debug
 
@@ -21,8 +23,8 @@ debug: compiler test
 release: CFLAGS += $(CRFLAGS)
 release: compiler
 
-test: $(SRC)/test.cpp $(OBJS) $(LIBS)
-	$(CC) $(CFLAGS) $(INC) -o $(TEST) $< $(OBJS) $(LIBS)
+test: $(SRC)/test.cpp $(OBJS) $(LIBS) $(TESTOBJS)
+	$(CC) $(CFLAGS) $(INC) -o $(TEST) $< $(OBJS) $(LIBS) $(TESTOBJS)
 
 compiler: $(SRC)/aesthetic.cpp $(OBJS) $(LIBS)
 	$(CC) $(CFLAGS) $(INC) -o $(EXEC) $< $(OBJS) $(LIBS)
@@ -30,6 +32,9 @@ compiler: $(SRC)/aesthetic.cpp $(OBJS) $(LIBS)
 $(OBJ)/lexer.o: $(SRC)/lexer/token.hpp
 
 $(OBJ)/%.o: $(SRC)/lexer/%.cpp $(SRC)/lexer/%.hpp
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
+$(TESTOBJ)/%.o: $(SRC)/test/%.cpp $(SRC)/test/%.hpp $(SRC)/test/test.hpp
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 clean:
