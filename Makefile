@@ -10,15 +10,19 @@ LIB=$(SRC)/libs
 LIBS=
 INC=-I$(SRC)/ -I$(LIB)/
 EXEC=$(BIN)/aesthetic
+TEST=$(BIN)/aesthetic-test
 
 all: debug
 
 debug: CFLAGS += $(CDFLAGS)
 debug: EXEC=$(BIN)/aesthetic-debug
-debug: compiler
+debug: compiler test
 
 release: CFLAGS += $(CRFLAGS)
 release: compiler
+
+test: $(SRC)/test.cpp $(OBJS) $(LIBS)
+	$(CC) $(CFLAGS) $(INC) -o $(TEST) $< $(OBJS) $(LIBS)
 
 compiler: $(SRC)/aesthetic.cpp $(OBJS) $(LIBS)
 	$(CC) $(CFLAGS) $(INC) -o $(EXEC) $< $(OBJS) $(LIBS)
