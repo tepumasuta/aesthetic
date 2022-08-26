@@ -151,7 +151,7 @@ namespace Aesthetic
         std::stringstream stream;
         stream << "OperatorToken";
         CommonString(stream);
-        stream << ' ' << representations[static_cast<size_t>(type)];
+        stream << " `" << representations[static_cast<size_t>(type)] << '`';
         return stream.str();
     }
 
@@ -185,7 +185,7 @@ namespace Aesthetic
         std::stringstream stream;
         stream << "KeywordToken";
         CommonString(stream);
-        stream << ' ' << representations[static_cast<size_t>(type)];
+        stream << " `" << representations[static_cast<size_t>(type)] << '`';
         return stream.str();
     }
 
@@ -195,7 +195,10 @@ namespace Aesthetic
     };
 
     PunctuationToken::PunctuationToken(Position pos, PunctuationType type)
-        : BasicToken(true, pos, PunctuationTypeToLength(type)), type(type) {}
+        : BasicToken(true, pos, Position(
+            type == PunctuationType::LINE_END,
+            PunctuationTypeToLength(type)
+        )), type(type) {}
 
     size_t PunctuationToken::PunctuationTypeToLength(PunctuationType type)
     {
@@ -220,7 +223,7 @@ namespace Aesthetic
         stream << "PunctuationToken";
         CommonString(stream);
         const std::string& value = representations[static_cast<size_t>(type)];
-        stream << ' ' << (value == "\n"s ? "\\n" : value);
+        stream << " `" << (value == "\n"s ? "\\n" : value) << '`';
         return stream.str();
     }
 
@@ -328,7 +331,7 @@ namespace Aesthetic
     void NumberToken::CommonString(std::ostream& out) const
     {
         ValueToken::CommonString(out);
-        out << " literal ";
+        out << " literal `";
         switch (type)
         {
         case NumberLiteralType::BIN:
@@ -344,6 +347,7 @@ namespace Aesthetic
             out << "0x";
             break;
         }
+        out << '`';
     }
 
     std::string NumberToken::ToString() const
