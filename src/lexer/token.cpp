@@ -293,7 +293,7 @@ namespace Aesthetic
 
         if (x != text.end())
             return std::make_shared<StringToken>(
-                true, pos, std::string_view(text.begin(), x), x - text.begin() - 2
+                true, pos, std::string_view(text.begin(), x + 1), x - text.begin() - 2
             );
 
         return std::make_shared<StringToken>(false, pos, text, text.length() - 1);
