@@ -14,7 +14,6 @@ OperatorToken[7:1-0:3](valid) `::=`
 PunctuationToken[7:4-1:1](valid) `\n`
 OperatorToken[8:1-0:2](valid) `:=`
 PunctuationToken[8:3-1:1](valid) `\n`
-OperatorToken[9:1-0:3](valid) `///`
 PunctuationToken[9:4-1:1](valid) `\n`
 OperatorToken[10:1-0:2](valid) `~>`
 PunctuationToken[10:3-1:1](valid) `\n`

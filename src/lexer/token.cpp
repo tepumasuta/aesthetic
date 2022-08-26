@@ -125,8 +125,8 @@ namespace Aesthetic
     }
 
 
-    const std::array<std::string, 12UL> OperatorToken::representations  = {
-        "+"s, "-"s, "*"s, "/"s, "//"s, "="s, "::="s, ":="s, "///"s, "~>"s, "!!"s, "~!"s
+    const std::array<std::string, 11UL> OperatorToken::representations  = {
+        "+"s, "-"s, "*"s, "/"s, "//"s, "="s, "::="s, ":="s, "~>"s, "!!"s, "~!"s
     };
 
     OperatorToken::OperatorToken(Position pos, OperationType type)

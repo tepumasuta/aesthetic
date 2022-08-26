@@ -63,6 +63,8 @@ namespace Aesthetic
     {
         auto start = m_Left.begin();
         m_Left.remove_prefix(std::min(m_Left.find_first_not_of(" \t"), m_Left.size()));
+        if (m_Left.starts_with("///"))
+            m_Left.remove_prefix(std::min(m_Left.find_first_of('\n'), m_Left.size()));
         size_t spaces = m_Left.begin() - start;
         m_CurrentPosition.col += spaces;
     }

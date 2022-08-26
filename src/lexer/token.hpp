@@ -30,10 +30,9 @@ namespace Aesthetic
         PLAIN_COPY       = 5UL,
         DEFINE_BINDING   = 6UL,
         BOOSTY_BINDING   = 7UL,
-        COMMENT_LINE     = 8UL,
-        PIPE             = 9UL,
-        DELETE           = 10UL,
-        RECURSION_DELETE = 11UL,
+        PIPE             = 8UL,
+        DELETE           = 9UL,
+        RECURSION_DELETE = 10UL,
     };
 
     enum class KeywordType : size_t
@@ -100,7 +99,7 @@ namespace Aesthetic
 
     struct OperatorToken : public BasicToken
     {
-        static const std::array<std::string, 12UL> representations;
+        static const std::array<std::string, 11UL> representations;
 
         OperationType type;
 
