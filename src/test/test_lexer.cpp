@@ -25,7 +25,9 @@ namespace Aesthetic
 
             return {
                 stream.str() == m_ExpectedResult,
-                GetName()
+                GetName(),
+                stream.str(),
+                m_ExpectedResult
             };
         }
         

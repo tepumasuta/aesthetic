@@ -13,10 +13,22 @@ namespace Aesthetic
         {
             bool Passed;
             const std::string& TestName;
+            const std::string Recieved;
+            const std::string Expected;
 
             friend std::ostream& operator<<(std::ostream& out, const TestResult& result)
             {
-                out << result.TestName << ": " << (result.Passed ? "passed" : "failed");
+                out << result.TestName << ": ";
+                if (result.Passed)
+                {
+                    out << "passed";
+                }
+                else
+                {
+                    out << "failed\n~ Expected:\n`" << result.Expected
+                        << "`\n~ Recieved:\n`" << result.Recieved << '`';
+                }
+
                 return out;
             }
         };
@@ -27,7 +39,7 @@ namespace Aesthetic
         public:
             Test(const std::string& name) : m_Name(name) {}
             virtual ~Test(){}
-            virtual TestResult Perform() const { return { false, GetName() }; }
+            virtual TestResult Perform() const { return { false, GetName(), "", "" }; }
 
             virtual const std::string& GetName() const { return m_Name; };
 
