@@ -74,7 +74,7 @@ namespace Aesthetic
 
     std::ostream& operator<<(std::ostream& out, const Position& pos)
     {
-        out << pos.col << ':' << pos.line;
+        out << pos.line << ':' << pos.col;
         return out;
     }
 
@@ -87,7 +87,7 @@ namespace Aesthetic
     
     void BasicToken::CommonString(std::ostream& out) const
     {
-        out << "[" << pos << ":" << length << "]" << "(" << (valid ? "" : "in") << "valid)";
+        out << "[" << pos << "-" << length << "]" << "(" << (valid ? "" : "in") << "valid)";
     }
 
     std::string BasicToken::ToString() const
