@@ -149,6 +149,8 @@ namespace Aesthetic
         static bool StartSymbolic(const char& sym);
         static bool Symbolic(const char& sym);
         static std::optional<std::shared_ptr<SymbolToken>> Find(const std::string_view& text, const Position& pos);
+    private:
+        std::string ToString() const;
     };
     
     struct ValueToken : public BasicToken

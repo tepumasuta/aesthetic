@@ -249,6 +249,15 @@ namespace Aesthetic
         return std::nullopt;
     }
 
+    std::string SymbolToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "SymbolToken";
+        CommonString(stream);
+        stream << " `" << contents << '`';
+        return stream.str();
+    }
+
 
     ValueToken::ValueToken(bool valid, Position pos, std::string_view contents)
         : BasicToken(valid, pos, contents.length()), contents(contents) {}
