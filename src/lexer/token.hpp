@@ -85,6 +85,7 @@ namespace Aesthetic
         friend std::ostream& operator<<(std::ostream& out, const BasicToken& token);
     protected:
         virtual void CommonString(std::ostream& out) const;
+    private:
         virtual std::string ToString() const;
     };
 
