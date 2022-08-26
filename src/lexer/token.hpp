@@ -136,6 +136,8 @@ namespace Aesthetic
 
         size_t PunctuationTypeToLength(PunctuationType type);
         static std::optional<std::shared_ptr<PunctuationToken>> Find(const std::string_view& text, const Position& pos);
+    private:
+        std::string ToString() const;
     };
     
     struct SymbolToken : public BasicToken

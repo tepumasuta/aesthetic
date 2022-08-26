@@ -210,6 +210,15 @@ namespace Aesthetic
             }
         );
     }
+    
+    std::string PunctuationToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "PunctuationToken";
+        CommonString(stream);
+        stream << ' ' << representations[static_cast<size_t>(type)];
+        return stream.str();
+    }
 
 
     SymbolToken::SymbolToken(Position pos, std::string_view contents)
