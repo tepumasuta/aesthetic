@@ -407,7 +407,7 @@ namespace Aesthetic
             [literalType](const char& sym){ return NumberToken::IsDigit(sym, literalType); }
         );
 
-        if ((fractional - decimal == 1) && !(decimal - text.begin()))
+        if ((fractional - decimal == 1) && (decimal - text.begin() == (literalType != NumberLiteralType::DEC) * 2))
         {
             if (literalType != NumberLiteralType::DEC)
                 return std::make_shared<FloatingPointToken>(false, pos, std::string_view(
