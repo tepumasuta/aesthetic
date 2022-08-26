@@ -414,6 +414,14 @@ namespace Aesthetic
         return std::nullopt;
     }
 
+    std::string FloatingPointToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "FloatingPointToken";
+        CommonString(stream);
+        return stream.str();
+    }
+
 
     IntegerToken::IntegerToken(bool valid, Position pos, std::string_view contents, NumberLiteralType type)
         : NumberToken(valid, pos, contents, type) {}

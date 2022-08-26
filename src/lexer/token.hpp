@@ -196,6 +196,8 @@ namespace Aesthetic
         FloatingPointToken(bool valid, Position pos, std::string_view contents, NumberLiteralType type);
 
         static std::optional<std::shared_ptr<FloatingPointToken>> Find(const std::string_view& text, const Position& pos);
+    private:
+        std::string ToString() const;
     };
     
     struct IntegerToken : public NumberToken
