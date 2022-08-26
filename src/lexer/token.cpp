@@ -454,5 +454,12 @@ namespace Aesthetic
             literalType
         );
     }
-    
+
+    std::string IntegerToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "IntegerToken";
+        CommonString(stream);
+        return stream.str();
+    }
 } // namespace Aesthetic

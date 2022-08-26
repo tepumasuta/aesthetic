@@ -205,6 +205,8 @@ namespace Aesthetic
         IntegerToken(bool valid, Position pos, std::string_view contents, NumberLiteralType type);
 
         static std::optional<std::shared_ptr<IntegerToken>> Find(const std::string_view& text, const Position& pos);
+    private:
+        std::string ToString() const;
     };
 
     using Token = BasicToken;
