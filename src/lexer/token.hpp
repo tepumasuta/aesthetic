@@ -92,6 +92,8 @@ namespace Aesthetic
         EndOfFileToken(Position pos);
 
         static std::optional<std::shared_ptr<EndOfFileToken>> Find(const std::string_view& text, const Position& pos);
+    private:
+        std::string ToString() const;
     };
 
     struct OperatorToken : public BasicToken

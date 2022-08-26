@@ -110,6 +110,13 @@ namespace Aesthetic
         return std::nullopt;
     }
 
+    std::string EndOfFileToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "EOFToken[" << pos << ":" << length << "](" << (valid ? "" : "in") << "valid)";
+        return stream.str();
+    }
+
 
     const std::array<std::string, 12UL> OperatorToken::representations  = {
         "+"s, "-"s, "*"s, "/"s, "//"s, "="s, "::="s, ":="s, "///"s, "~>"s, "!!"s, "~!"s
