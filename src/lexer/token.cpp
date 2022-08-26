@@ -84,11 +84,17 @@ namespace Aesthetic
 
     BasicToken::BasicToken(bool valid, Position pos, Position length)
         : valid(valid), pos(pos), length(length) {}
-        
+    
+    void BasicToken::CommonString(std::ostream& out) const
+    {
+        out << "[" << pos << ":" << length << "]" << "(" << (valid ? "" : "in") << "valid)";
+    }
+
     std::string BasicToken::ToString() const
     {
         std::stringstream stream;
-        stream << "BasicToken[" << pos << ":" << length << "](" << (valid ? "" : "in") << "valid)";
+        stream << "BasicToken";
+        CommonString(stream);
         return stream.str();
     }
         
@@ -113,7 +119,8 @@ namespace Aesthetic
     std::string EndOfFileToken::ToString() const
     {
         std::stringstream stream;
-        stream << "EOFToken[" << pos << ":" << length << "](" << (valid ? "" : "in") << "valid)";
+        stream << "EOFToken";
+        CommonString(stream);
         return stream.str();
     }
 
@@ -137,6 +144,15 @@ namespace Aesthetic
                 return text.starts_with(start);
             }
         );
+    }
+
+    std::string OperatorToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "OperatorToken";
+        CommonString(stream);
+        stream << ' ' << representations[static_cast<size_t>(type)];
+        return stream.str();
     }
 
 

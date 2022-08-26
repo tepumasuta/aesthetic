@@ -83,7 +83,8 @@ namespace Aesthetic
         BasicToken(bool valid, Position pos, size_t length);
 
         friend std::ostream& operator<<(std::ostream& out, const BasicToken& token);
-    private:
+    protected:
+        virtual void CommonString(std::ostream& out) const;
         virtual std::string ToString() const;
     };
 
@@ -106,6 +107,8 @@ namespace Aesthetic
 
         size_t OperationTypeToLength(OperationType type);
         static std::optional<std::shared_ptr<OperatorToken>> Find(const std::string_view& text, const Position& pos);
+    private:
+        std::string ToString() const;
     };
     
     struct KeywordToken : public BasicToken
