@@ -180,6 +180,15 @@ namespace Aesthetic
         );
     }
 
+    std::string KeywordToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "KeywordToken";
+        CommonString(stream);
+        stream << ' ' << representations[static_cast<size_t>(type)];
+        return stream.str();
+    }
+
 
     const std::array<std::string, 11UL> PunctuationToken::representations = {
         ";", "{", "}", "(", ")", "[", "]", ",", ".", "\\n", ":"

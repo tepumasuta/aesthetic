@@ -122,6 +122,8 @@ namespace Aesthetic
 
         size_t KeywordTypeToLength(KeywordType type);
         static std::optional<std::shared_ptr<KeywordToken>> Find(const std::string_view& text, const Position& pos);
+    private:
+        std::string ToString() const;
     };
     
     struct PunctuationToken : public BasicToken
