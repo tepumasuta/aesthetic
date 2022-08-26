@@ -158,6 +158,10 @@ namespace Aesthetic
         std::string_view contents;
 
         ValueToken(bool valid, Position pos, std::string_view contents);
+    protected:
+        virtual void CommonString(std::ostream& out) const;
+    private:
+        std::string ToString() const;
     };
 
     struct StringToken : public ValueToken

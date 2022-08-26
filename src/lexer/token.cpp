@@ -262,6 +262,19 @@ namespace Aesthetic
     ValueToken::ValueToken(bool valid, Position pos, std::string_view contents)
         : BasicToken(valid, pos, contents.length()), contents(contents) {}
     
+    void ValueToken::CommonString(std::ostream& out) const
+    {
+        BasicToken::CommonString(out);
+        out << " contents: `" << contents << '`';
+    }
+
+    std::string ValueToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "ValueToken";
+        CommonString(stream);
+        return stream.str();
+    }
 
     StringToken::StringToken(bool valid, Position pos, std::string_view contents, size_t length)
         : ValueToken(valid, pos, contents), stringLength(length) {}
