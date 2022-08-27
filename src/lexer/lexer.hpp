@@ -32,6 +32,8 @@ namespace Aesthetic
         }
         std::optional<std::shared_ptr<T>> FindToken();
         TokenRef LexToken();
+        TokenRef LexFullToken();
         void SkipGap();
+        void StepPosition(Position length);
     };
 } // namespace Aesthetic

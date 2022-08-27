@@ -72,6 +72,16 @@ namespace Aesthetic
         return *this;
     }
 
+    bool Position::operator==(const Position& other)
+    {
+        return line == other.line && col == other.col;
+    }
+
+    bool Position::operator!=(const Position& other)
+    {
+        return line != other.line || col != other.col;
+    }
+
     std::ostream& operator<<(std::ostream& out, const Position& pos)
     {
         out << pos.line << ':' << pos.col;
@@ -476,4 +486,18 @@ namespace Aesthetic
         CommonString(stream);
         return stream.str();
     }
+    
+
+    UnknownToken::UnknownToken(Position pos, std::string_view contents)
+        : BasicToken(false, pos, contents), contents(contents) {}
+        
+    std::string UnknownToken::ToString() const
+    {
+        std::stringstream stream;
+        stream << "UnknownToken";
+        CommonString(stream);
+        stream << " `" << contents << '`';
+        return stream.str();
+    }
+
 } // namespace Aesthetic

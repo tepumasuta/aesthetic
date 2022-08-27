@@ -70,6 +70,9 @@ namespace Aesthetic
 
         Position operator+(const Position& other);
         Position& operator+=(const Position& other);
+
+        bool operator==(const Position& other);
+        bool operator!=(const Position& other);
     };
 
     struct BasicToken
@@ -208,6 +211,15 @@ namespace Aesthetic
         std::string ToString() const;
     };
 
+    struct UnknownToken : public BasicToken
+    {
+        std::string_view contents;
+
+        UnknownToken(Position pos, std::string_view contents);
+    private:
+        std::string ToString() const;
+    };
+
     using Token = BasicToken;
     using TokenRef = std::shared_ptr<Token>;
     using EOFToken = EndOfFileToken;
@@ -221,4 +233,5 @@ namespace Aesthetic
     using NumberTokenRef = std::shared_ptr<NumberToken>;
     using FloatingPointTokenRef = std::shared_ptr<FloatingPointToken>;
     using IntegerTokenRef = std::shared_ptr<IntegerToken>;
+    using UnknownTokenRef = std::shared_ptr<UnknownToken>;
 } // namespace Aesthetic

@@ -12,9 +12,12 @@ namespace Aesthetic
         std::vector<TokenRef> result;
         TokenRef token;
 
-        while ((token = LexToken())->valid && (dynamic_cast<EOFToken*>(token.get()) == nullptr))
+        for (token = LexFullToken(); dynamic_cast<EOFToken*>(token.get()) == nullptr; token = LexFullToken())
+        {
+            StepPosition(token->length);
             result.push_back(token);
-
+        }
+        StepPosition(token->length);
         result.push_back(token);
 
         return result;
@@ -36,6 +39,31 @@ namespace Aesthetic
         return std::make_shared<Token>(false, m_CurrentPosition, 0UL);
     }
 
+    TokenRef Lexer::LexFullToken()
+    {
+        TokenRef token = LexToken();
+        if (token->length != Position(0, 0) || token->valid)
+            return token;
+
+        const char* start = &m_Left[0];
+        const std::string_view previous = m_Left;
+
+        while (token->length == Position(0, 0) && !token->valid)
+        {
+            m_Left.remove_prefix(1);
+            token = LexToken();
+        }
+
+        token = std::make_shared<UnknownToken>(
+            m_CurrentPosition,
+            std::string_view(start, m_Left.begin())
+        );
+
+        m_Left = previous;
+
+        return token;
+    }
+
     template<typename T>
     requires requires(T t, const std::string_view& sv, const Position& pos)
     {
@@ -44,19 +72,16 @@ namespace Aesthetic
     }
     std::optional<std::shared_ptr<T>> Lexer::FindToken()
     {
-        using TRef = std::shared_ptr<T>;
-        if (std::optional<TRef> tokenRef = T::Find(m_Left, m_CurrentPosition))
-        {
-            Position length = tokenRef.value()->length;
-            m_CurrentPosition += length;
+        return T::Find(m_Left, m_CurrentPosition);
+    }
 
-            while (length.line--)
-                m_Left.remove_prefix(m_Left.find('\n'));
-            m_Left.remove_prefix(length.col);
+    void Lexer::StepPosition(Position length)
+    {
+        m_CurrentPosition += length;
 
-            return tokenRef;
-        }
-        return std::nullopt;
+        while (length.line--)
+            m_Left.remove_prefix(m_Left.find('\n'));
+        m_Left.remove_prefix(length.col);
     }
 
     void Lexer::SkipGap()
