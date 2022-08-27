@@ -36,12 +36,13 @@ namespace Aesthetic
             return m_Name;
         }
         
-        std::array<LexerTest, 2> LexerTest::LoadTests(const std::string& testDirectory)
+        std::array<LexerTest, 3> LexerTest::LoadTests(const std::string& testDirectory)
         {
             const std::string prefix = testDirectory + "/lexer/"s;
-            std::array<LexerTest, 2> entries = {
+            std::array<LexerTest, 3> entries = {
                 LexerTest("Lexer Operators"s, prefix + "01-operators.ae", prefix + "01-operators.txt"),
                 LexerTest("Lexer Literals"s, prefix + "02-literals.ae", prefix + "02-literals.txt"),
+                LexerTest("Lexer Keywords"s, prefix + "03-keywords.ae", prefix + "03-keywords.txt"),
             };
             return entries;
         }

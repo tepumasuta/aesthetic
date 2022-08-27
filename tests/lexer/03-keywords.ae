@@ -1,0 +1,11 @@
+/// Regular keywords
+if
+when
+whenever
+on
+exist
+
+/// Symbols starting w/ keywords
+iff
+whena
+ona

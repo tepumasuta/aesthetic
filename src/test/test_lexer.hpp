@@ -17,7 +17,7 @@ namespace Aesthetic
             TestResult Perform() const;
             const std::string& GetName() const;
 
-            static std::array<LexerTest, 2> LoadTests(const std::string& testDirectory);
+            static std::array<LexerTest, 3> LoadTests(const std::string& testDirectory);
         private:
             std::string m_SourceContents;
             std::string m_ExpectedResult;

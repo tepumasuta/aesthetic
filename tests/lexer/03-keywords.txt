@@ -1,0 +1,17 @@
+PunctuationToken[1:21-1:1](valid) `\n`
+KeywordToken[2:1-0:2](valid) `if`
+PunctuationToken[2:3-1:1](valid) `\n`
+KeywordToken[3:1-0:4](valid) `when`
+PunctuationToken[3:5-1:1](valid) `\n`
+KeywordToken[4:1-0:8](valid) `whenever`
+PunctuationToken[4:9-1:1](valid) `\n`
+KeywordToken[5:1-0:2](valid) `on`
+PunctuationToken[5:3-1:1](valid) `\n`
+KeywordToken[6:1-0:5](valid) `exist`
+PunctuationToken[6:6-1:1](valid) `\n`
+PunctuationToken[7:1-1:1](valid) `\n`
+PunctuationToken[8:33-1:1](valid) `\n`
+SymbolToken[9:1-0:4](valid) `iff`
+SymbolToken[9:5-0:6](valid) `whena`
+SymbolToken[9:11-0:4](valid) `ona`
+EOFToken[9:15-0:0](valid)
