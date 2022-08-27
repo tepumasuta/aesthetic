@@ -23,6 +23,7 @@
 ./1234567890-=!@#$%^&*()_+|QWERTYUIOPASDFGHJKLZXCVBNM"
 'qwertyuiop[]asdfghjkl;"zxcvbnm,./1234567890-=!@#$%^&*()_+|QWERTYUIOPASDFGHJK
 LZXCVBNM'
+"dfasg sfa \"ga"
 
 /// Incorrect floating point literal
 0b.

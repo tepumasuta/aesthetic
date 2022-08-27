@@ -41,12 +41,14 @@ PunctuationToken[22:88-1:1](valid) `\n`
 StringToken[23:1-0:87](valid) contents: `'qwertyuiop[]asdfghjkl;"zxcvbnm,./1234567890-=!@#$%^&*()_+|QWERTYUIOPASDFGHJK
 LZXCVBNM'` of length 84
 PunctuationToken[23:88-1:1](valid) `\n`
-PunctuationToken[24:1-1:1](valid) `\n`
-PunctuationToken[25:37-1:1](valid) `\n`
-FloatingPointToken[26:1-0:3](invalid) contents: `0b.` literal `0b`
-PunctuationToken[26:4-1:1](valid) `\n`
-FloatingPointToken[27:1-0:3](invalid) contents: `0o.` literal `0o`
+StringToken[24:1-0:16](valid) contents: `"dfasg sfa \"ga"` of length 13
+PunctuationToken[24:17-1:1](valid) `\n`
+PunctuationToken[25:1-1:1](valid) `\n`
+PunctuationToken[26:37-1:1](valid) `\n`
+FloatingPointToken[27:1-0:3](invalid) contents: `0b.` literal `0b`
 PunctuationToken[27:4-1:1](valid) `\n`
-FloatingPointToken[28:1-0:3](invalid) contents: `0x.` literal `0x`
+FloatingPointToken[28:1-0:3](invalid) contents: `0o.` literal `0o`
 PunctuationToken[28:4-1:1](valid) `\n`
-EOFToken[29:1-0:0](valid)
+FloatingPointToken[29:1-0:3](invalid) contents: `0x.` literal `0x`
+PunctuationToken[29:4-1:1](valid) `\n`
+EOFToken[30:1-0:0](valid)
