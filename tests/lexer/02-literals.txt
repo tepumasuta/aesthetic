@@ -1,0 +1,52 @@
+PunctuationToken[1:29-1:1](valid) `\n`
+IntegerToken[2:1-0:10](valid) contents: `1234567890` literal `dec`
+PunctuationToken[2:11-1:1](valid) `\n`
+IntegerToken[3:1-0:20](valid) contents: `0xffabcdef0123456789` literal `0x`
+PunctuationToken[3:21-1:1](valid) `\n`
+IntegerToken[4:1-0:12](valid) contents: `0o4201234567` literal `0o`
+PunctuationToken[4:13-1:1](valid) `\n`
+IntegerToken[5:1-0:6](valid) contents: `0b1101` literal `0b`
+PunctuationToken[5:7-1:1](valid) `\n`
+FloatingPointToken[6:1-0:4](valid) contents: `13.5` literal `dec`
+PunctuationToken[6:5-1:1](valid) `\n`
+FloatingPointToken[7:1-0:25](valid) contents: `0x1023456789abcdef.ABCDEF` literal `0x`
+PunctuationToken[7:26-1:1](valid) `\n`
+FloatingPointToken[8:1-0:24](valid) contents: `0o12516173570.1425025125` literal `0o`
+PunctuationToken[8:25-1:1](valid) `\n`
+FloatingPointToken[9:1-0:12](valid) contents: `0b101.011101` literal `0b`
+PunctuationToken[9:13-1:1](valid) `\n`
+PunctuationToken[10:1-1:1](valid) `\n`
+PunctuationToken[11:47-1:1](valid) `\n`
+FloatingPointToken[12:1-0:8](valid) contents: `1244213.` literal `dec`
+PunctuationToken[12:9-1:1](valid) `\n`
+FloatingPointToken[13:1-0:4](valid) contents: `.123` literal `dec`
+PunctuationToken[13:5-1:1](valid) `\n`
+FloatingPointToken[14:1-0:5](valid) contents: `0b10.` literal `0b`
+PunctuationToken[14:6-1:1](valid) `\n`
+FloatingPointToken[15:1-0:5](valid) contents: `0b.10` literal `0b`
+PunctuationToken[15:6-1:1](valid) `\n`
+FloatingPointToken[16:1-0:11](valid) contents: `0o.01234567` literal `0o`
+PunctuationToken[16:12-1:1](valid) `\n`
+FloatingPointToken[17:1-0:11](valid) contents: `0o12345670.` literal `0o`
+PunctuationToken[17:12-1:1](valid) `\n`
+FloatingPointToken[18:1-0:9](valid) contents: `0xABCDEF.` literal `0x`
+PunctuationToken[18:10-1:1](valid) `\n`
+FloatingPointToken[19:1-0:9](valid) contents: `0x.abcdef` literal `0x`
+PunctuationToken[19:10-1:1](valid) `\n`
+PunctuationToken[20:1-1:1](valid) `\n`
+PunctuationToken[21:20-1:1](valid) `\n`
+StringToken[22:1-0:87](valid) contents: `"qwertyuiop[]asdfghjkl;'zxcvbnm,
+./1234567890-=!@#$%^&*()_+|QWERTYUIOPASDFGHJKLZXCVBNM"` of length 84
+PunctuationToken[22:88-1:1](valid) `\n`
+StringToken[23:1-0:87](valid) contents: `'qwertyuiop[]asdfghjkl;"zxcvbnm,./1234567890-=!@#$%^&*()_+|QWERTYUIOPASDFGHJK
+LZXCVBNM'` of length 84
+PunctuationToken[23:88-1:1](valid) `\n`
+PunctuationToken[24:1-1:1](valid) `\n`
+PunctuationToken[25:37-1:1](valid) `\n`
+FloatingPointToken[26:1-0:3](invalid) contents: `0b.` literal `0b`
+PunctuationToken[26:4-1:1](valid) `\n`
+FloatingPointToken[27:1-0:3](invalid) contents: `0o.` literal `0o`
+PunctuationToken[27:4-1:1](valid) `\n`
+FloatingPointToken[28:1-0:3](invalid) contents: `0x.` literal `0x`
+PunctuationToken[28:4-1:1](valid) `\n`
+EOFToken[29:1-0:0](valid)
