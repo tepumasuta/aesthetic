@@ -1,0 +1,15 @@
+/// Prints to the console numbers from 0 to 999:
+///
+/// 0
+/// 1
+/// ...
+/// 999
+
+when #start {
+    x ::= 0
+
+    when x >= 1000 { ~!x }
+    on x { print x }
+
+    x := x + 1
+}

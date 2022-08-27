@@ -55,7 +55,7 @@ namespace Aesthetic
 
     Position::Position(std::string_view contents)
         : line(std::ranges::count(contents, '\n')),
-          col(contents.size() - std::max(contents.rfind('\n'), contents.rfind("\r\n"))) {}
+          col(contents.size() - std::max(contents.rfind('\n'), contents.rfind("\r\n")) - 1) {}
 
     Position Position::operator+(const Position& other)
     {
